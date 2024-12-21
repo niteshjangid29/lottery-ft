@@ -1,3 +1,5 @@
+import NumberPicker from "@/components/NumberPicker";
+
 export default function ResultsPage() {
 	return (
 		<div className="min-h-screen pt-16 bg-gray-100">
@@ -24,6 +26,10 @@ export default function ResultsPage() {
 								</div>
 							</div>
 						</div>
+					</div>
+					<div>
+						<h2>Ticket Picker</h2>
+						<NumberPicker />
 					</div>
 				</div>
 			</div>
