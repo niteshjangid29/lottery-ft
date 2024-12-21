@@ -57,9 +57,9 @@ export default function Home() {
 						Recent Winners
 					</h2>
 					<ul className="list-disc pl-5">
-						<li>John Doe - ₹ 1,000,000</li>
+						<li>James Potter - ₹ 1,000,000</li>
 						<li>Harry Potter - ₹ 500,000</li>
-						<li>Bob Johnson - ₹ 250,000</li>
+						<li>Lilly Potter - ₹ 250,000</li>
 					</ul>
 				</div>
 
