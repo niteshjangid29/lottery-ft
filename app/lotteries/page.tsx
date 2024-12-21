@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
-import { FaSearch, FaFilter, FaSort } from "react-icons/fa";
+import { FaSearch, FaFilter } from "react-icons/fa";
 
 interface LotteryItem {
 	id: number;
@@ -94,9 +94,7 @@ export default function LotteriesPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 
 	const [currentPage, setCurrentPage] = useState(1);
-	const [selectedLottery, setSelectedLottery] = useState<LotteryItem | null>(
-		null
-	);
+
 	const itemsPerPage = 6;
 
 	// Filter Logic
@@ -216,9 +214,6 @@ export default function LotteriesPage() {
 											<div
 												key={lottery.id}
 												className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer"
-												onClick={() =>
-													setSelectedLottery(lottery)
-												}
 											>
 												<div className="flex flex-col p-4 gap-y-2">
 													<h3 className="text-xl font-semibold">

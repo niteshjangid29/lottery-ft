@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState, use } from "react";
+import { useState } from "react";
 import { FaDice, FaMinus, FaPencilAlt, FaPlus } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 
@@ -71,7 +71,7 @@ export default function PurchaseTicketsPage() {
 	};
 
 	return (
-		<div className="min-h-screen pt-16 bg-gray-100">
+		<div className="min-h-screen py-16 bg-gray-100 md:pb-0">
 			<div className="max-w-7xl mx-auto h-full p-4">
 				{/* Lottery Details Header */}
 				<div className="bg-white rounded-lg shadow-md p-6 mb-6">
