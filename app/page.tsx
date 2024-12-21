@@ -58,7 +58,7 @@ export default function Home() {
 					</h2>
 					<ul className="list-disc pl-5">
 						<li>John Doe - ₹ 1,000,000</li>
-						<li>Jane Smith - ₹ 500,000</li>
+						<li>Harry Potter - ₹ 500,000</li>
 						<li>Bob Johnson - ₹ 250,000</li>
 					</ul>
 				</div>
