@@ -156,7 +156,7 @@ export default function PurchaseTicketsPage() {
 									className="w-full p-3 border rounded-lg"
 								/>
 								<button
-									className="w-full bg-blue-500 text-white py-3 rounded-lg"
+									className="w-full bg-blue-500 text-white py-3 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
 									onClick={addCustomTicket}
 									disabled={
 										customNumber.length !==
