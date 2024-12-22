@@ -1,5 +1,6 @@
 "use client";
 
+import NumberPicker from "@/components/NumberPicker";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { FaDice, FaMinus, FaPencilAlt, FaPlus } from "react-icons/fa";
@@ -15,7 +16,7 @@ interface TicketOption {
 export default function PurchaseTicketsPage() {
 	const [activeTab, setActiveTab] = useState<"random" | "custom">("random");
 	const [quantity, setQuantity] = useState(1);
-	const [customNumber, setCustomNumber] = useState("");
+	const [customNumber, setCustomNumber] = useState<string>("");
 	const [selectedTickets, setSelectedTickets] = useState<TicketOption[]>([]);
 
 	const searchParams = useSearchParams();
@@ -25,6 +26,17 @@ export default function PurchaseTicketsPage() {
 		name: searchParams.get("name") || "Lottery Name",
 		ticketPrice: parseInt(searchParams.get("ticketPrice") || "0"),
 		digitLength: parseInt(searchParams.get("digitLength") || "4"),
+	};
+
+	const [numbers, setNumbers] = useState<string[]>(
+		Array(lotteryDetails.digitLength).fill("")
+	);
+
+	const handleNumberChange = (index: number, value: string) => {
+		const newNumbers = [...numbers];
+		newNumbers[index] = value;
+		setNumbers(newNumbers);
+		setCustomNumber(newNumbers.join(""));
 	};
 
 	const generateRandomTicket = () => {
@@ -145,7 +157,7 @@ export default function PurchaseTicketsPage() {
 							</div>
 						) : (
 							<div className="space-y-4">
-								<input
+								{/* <input
 									type="number"
 									value={customNumber}
 									onChange={(e) =>
@@ -154,7 +166,23 @@ export default function PurchaseTicketsPage() {
 									placeholder={`Enter ${lotteryDetails.digitLength} digits`}
 									maxLength={lotteryDetails.digitLength}
 									className="w-full p-3 border rounded-lg"
-								/>
+								/> */}
+								<div className="flex items-center justify-center space-x-4">
+									{Array.from(
+										{ length: lotteryDetails.digitLength },
+										(_, i) => (
+											<NumberPicker
+												key={i}
+												index={i}
+												value={numbers[i]}
+												onChange={handleNumberChange}
+												totalDigits={
+													lotteryDetails.digitLength
+												}
+											/>
+										)
+									)}
+								</div>
 								<button
 									className="w-full bg-blue-500 text-white py-3 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
 									onClick={addCustomTicket}

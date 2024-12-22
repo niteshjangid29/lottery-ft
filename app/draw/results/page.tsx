@@ -27,10 +27,6 @@ export default function ResultsPage() {
 							</div>
 						</div>
 					</div>
-					<div>
-						<h2>Ticket Picker</h2>
-						<NumberPicker />
-					</div>
 				</div>
 			</div>
 		</div>
