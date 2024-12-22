@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import LotteryCard from "@/components/TicketCard";
 import React, { useMemo, useState } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 
@@ -209,66 +209,12 @@ export default function LotteriesPage() {
 										No lotteries found
 									</div>
 								) : (
-									<div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+									<div className="grid grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
 										{paginatedLotteries.map((lottery) => (
-											<div
+											<LotteryCard
+												lotteryData={lottery}
 												key={lottery.id}
-												className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer"
-											>
-												<div className="flex flex-col p-4 gap-y-2">
-													<h3 className="text-xl font-semibold">
-														{lottery.name}
-													</h3>
-													<div className="flex flex-col gap-y-2">
-														<p className="text-gray-600">
-															Draw Date:{" "}
-															{new Date(
-																lottery.drawDate
-															).toLocaleDateString()}
-														</p>
-														<p className="text-gray-600">
-															Draw Time:{" "}
-															{lottery.drawTime}
-														</p>
-														<p className="text-green-600 font-semibold">
-															Prize:{" "}
-															{
-																lottery.prizeAmount
-															}
-														</p>
-														<p className="text-gray-600">
-															Ticket Price: ₹
-															{
-																lottery.ticketPrice
-															}
-														</p>
-													</div>
-													<Link
-														href={{
-															pathname: `/lotteries/purchaseTickets/${lottery.id}`,
-															query: {
-																id: lottery.id,
-																name: lottery.name,
-																drawDate:
-																	lottery.drawDate,
-																drawTime:
-																	lottery.drawTime,
-																prizeAmount:
-																	lottery.prizeAmount,
-																ticketPrice:
-																	lottery.ticketPrice,
-																category:
-																	lottery.category,
-																digitLength:
-																	lottery.digitLength,
-															},
-														}}
-														className="w-max bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
-													>
-														Buy Ticket
-													</Link>
-												</div>
-											</div>
+											/>
 										))}
 									</div>
 								)}

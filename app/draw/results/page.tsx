@@ -1,5 +1,3 @@
-import NumberPicker from "@/components/NumberPicker";
-
 export default function ResultsPage() {
 	return (
 		<div className="min-h-screen pt-16 bg-gray-100">

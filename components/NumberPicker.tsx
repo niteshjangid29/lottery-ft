@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 
 interface NumberPickerProps {
@@ -88,6 +88,7 @@ const NumberPicker: React.FC<NumberPickerProps> = ({
 				onChange={handleChange}
 				onKeyDown={handleKeyDown}
 				data-index={index}
+				placeholder="0"
 				className="w-12 h-12 text-center text-2xl border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 				maxLength={1}
 			/>
