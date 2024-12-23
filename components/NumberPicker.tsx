@@ -15,7 +15,7 @@ const NumberPicker: React.FC<NumberPickerProps> = ({
 	value,
 	onChange,
 	totalDigits,
-}) => {
+}: NumberPickerProps) => {
 	const inputRef = React.useRef<HTMLInputElement>(null);
 
 	const focusNext = () => {

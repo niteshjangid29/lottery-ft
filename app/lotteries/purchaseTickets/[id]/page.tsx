@@ -157,16 +157,6 @@ export default function PurchaseTicketsPage() {
 							</div>
 						) : (
 							<div className="space-y-4">
-								{/* <input
-									type="number"
-									value={customNumber}
-									onChange={(e) =>
-										setCustomNumber(e.target.value)
-									}
-									placeholder={`Enter ${lotteryDetails.digitLength} digits`}
-									maxLength={lotteryDetails.digitLength}
-									className="w-full p-3 border rounded-lg"
-								/> */}
 								<div className="flex items-center justify-center space-x-4">
 									{Array.from(
 										{ length: lotteryDetails.digitLength },
