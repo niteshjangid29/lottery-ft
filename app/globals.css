@@ -25,3 +25,24 @@
 		scrollbar-width: none; /* Firefox */
 	}
 }
+
+.slick-slide > div {
+	margin: 0 20px;
+}
+
+.slick-slide {
+	border-radius: 10px;
+}
+
+/* Change arrow color */
+.slick-prev,
+.slick-next {
+	color: #ff5722; /* Set arrow color */
+	z-index: 1; /* Ensure arrows are visible */
+}
+
+/* Hover effect */
+.slick-prev:hover,
+.slick-next:hover {
+	color: #ff9800;
+}

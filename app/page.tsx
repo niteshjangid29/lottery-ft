@@ -1,8 +1,11 @@
+import CardSlider from "@/components/CardSlider";
+import Slider from "@/components/slider";
+import { DUMMY_LOTTERIES } from "@/utils/data/lotteryData";
 import Link from "next/link";
 
 export default function Home() {
 	return (
-		<div className=" text-primary bg-gray-100 min-h-screen py-16 md:pb-0">
+		<div className="text-primary bg-gray-100 min-h-screen py-16 md:pb-0">
 			<div className="max-w-7xl mx-auto p-4">
 				{/* Hero Section */}
 				<div className="text-center mb-10">
@@ -13,7 +16,7 @@ export default function Home() {
 						Your chance to win big starts here!
 					</p>
 					<Link
-						href={"/lotteries"}
+						href={"/login"}
 						className="bg-blue-500 text-white py-3 px-6 rounded text-lg"
 					>
 						Get Started
@@ -21,27 +24,14 @@ export default function Home() {
 				</div>
 
 				{/* Current Lottery Info */}
-				<div className="bg-white shadow-md rounded p-6 mb-6">
-					<h2 className="text-3xl font-semibold mb-4">
-						Current Lottery
+				<div className="mb-6">
+					<h2 className="text-3xl pl-4 font-semibold mb-4">
+						Top Lotteries
 					</h2>
-					<p className="text-lg">
-						Next Draw:{" "}
-						<strong>
-							{
-								new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-									.toLocaleString()
-									.split(",")[0]
-							}
-						</strong>
-					</p>
-					<p className="text-lg">
-						Jackpot Amount: <strong>₹ X,XXX,XXX</strong>
-					</p>
-					<button className="mt-4 bg-green-500 text-white py-2 px-4 rounded">
-						Purchase Ticket
-					</button>
+					<CardSlider />
 				</div>
+
+				{/* <Slider data={DUMMY_LOTTERIES.slice(0, 4)} /> */}
 
 				{/* Promotional Banner */}
 				<div className="bg-yellow-300 text-black text-center p-4 rounded mb-6">
@@ -63,6 +53,19 @@ export default function Home() {
 					</ul>
 				</div>
 
+				{/* Contact Us Section */}
+				<div className="p-6">
+					<h2 className="text-3xl font-semibold mb-4">Contact Us</h2>
+					<p className="text-gray-600 mt-2">
+						Have any questions? Reach out to us at
+					</p>
+					<p className="text-gray-600 mt-2">
+						<a href="mailto:support@lotterygame.com">
+							support@lotterygame.com
+						</a>
+					</p>
+				</div>
+
 				{/* Footer Links */}
 				<footer className="mt-10 text-center">
 					<p>Learn more about our games:</p>
@@ -72,9 +75,6 @@ export default function Home() {
 						</Link>
 						<Link href="/rules" className="text-blue-500">
 							Rules
-						</Link>
-						<Link href="/contact" className="text-blue-500">
-							Contact Us
 						</Link>
 					</div>
 				</footer>
