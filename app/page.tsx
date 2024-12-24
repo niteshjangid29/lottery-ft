@@ -1,6 +1,6 @@
 import CardSlider from "@/components/CardSlider";
-import Slider from "@/components/Slider";
-import { DUMMY_LOTTERIES } from "@/utils/data/lotteryData";
+// import Slider from "@/components/Slider";
+// import { DUMMY_LOTTERIES } from "@/utils/data/lotteryData";
 import Link from "next/link";
 
 export default function Home() {

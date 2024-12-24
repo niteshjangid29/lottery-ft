@@ -10,6 +10,8 @@ import { FaDice, FaMinus, FaPencilAlt, FaPlus } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 interface TicketOption {
 	id: string;
 	type: "random" | "custom";
@@ -361,11 +363,6 @@ export default function PurchaseTicketsPage() {
 						<p className="text-gray-600">No tickets selected yet</p>
 					) : (
 						<div className="space-y-4">
-							<div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-								<p className="text-gray-600">Ticket No.</p>
-								<p className="text-gray-600">Price</p>
-								<p className="text-gray-600">""</p>
-							</div>
 							{selectedTickets.map((ticket) => (
 								<div
 									key={ticket.id}

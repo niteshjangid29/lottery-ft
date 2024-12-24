@@ -1,5 +1,5 @@
 import { Ticket } from "@/app/draw/results/page";
-import { FaQrcode, FaTimes } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 
 interface TicketDetailModalProps {
 	ticket: Ticket;

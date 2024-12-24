@@ -2,7 +2,7 @@
 
 import SalesTable from "@/components/SalesTable";
 import StatCard from "@/components/StatCard";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 
 interface Sale {
 	id: string;
@@ -41,15 +41,30 @@ const DUMMY_SALES: Sale[] = [
 ];
 
 export default function RetailerDashboard() {
-	const [stats, setStats] = useState({
-		totalSales: 1700,
-		pendingCommission: 150,
-		totalCommission: 170,
-		customerCount: 3,
+	const [stats, setStats] = useState<{
+		totalSales: number;
+		pendingCommission: number;
+		totalCommission: number;
+		customerCount: number;
+	}>({
+		totalSales: 0,
+		pendingCommission: 0,
+		totalCommission: 0,
+		customerCount: 0,
 	});
 	const [page, setPage] = useState(1);
 
 	const itemsPerPage = 10;
+
+	// remove it once the data is fetched
+	useState(() => {
+		setStats({
+			totalSales: 1700,
+			pendingCommission: 150,
+			totalCommission: 170,
+			customerCount: 3,
+		});
+	});
 
 	// Pagination Logic
 	const totalPages = Math.ceil(DUMMY_SALES.length / itemsPerPage);
@@ -57,6 +72,7 @@ export default function RetailerDashboard() {
 		const startIndex = (page - 1) * itemsPerPage;
 		return DUMMY_SALES.slice(startIndex, startIndex + itemsPerPage);
 	}, [DUMMY_SALES, page]);
+	// removed DUMMY_SALES from dependency array
 
 	return (
 		<div className="min-h-screen bg-gray-100 py-16 md:pb-0">

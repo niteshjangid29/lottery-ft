@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 // import { format } from 'date-fns';
 
 interface Sale {
@@ -17,8 +17,8 @@ interface SalesTableProps {
 }
 
 const SalesTable = ({ sales }: SalesTableProps) => {
-	const [sortBy, setSortBy] = useState("");
-	const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+	// const [sortBy, setSortBy] = useState("");
+	// const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
 	return (
 		<div className="bg-white rounded-lg shadow">

@@ -25,6 +25,7 @@ function AffiliatePage() {
 				},
 				(err) => {
 					toast.error("Failed to copy text");
+					console.log("Copy failed", err);
 				}
 			)
 			.catch((err) => {
@@ -60,7 +61,7 @@ function AffiliatePage() {
 					</div>
 
 					<button
-						className="w-full sm:w-1/2 bg-blue-500 text-white py-3 px-6 rounded disabled:cursor-not-allowed disabled:text-gray-500 disabled:bg-gray-300" 
+						className="w-full sm:w-1/2 bg-blue-500 text-white py-3 px-6 rounded disabled:cursor-not-allowed disabled:text-gray-500 disabled:bg-gray-300"
 						onClick={handleGenerateLink}
 						disabled={affiliateLink !== ""}
 					>

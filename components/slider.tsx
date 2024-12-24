@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import LotteryCard from "./TicketCard";
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 const Slider = ({ data }: any) => {
 	const [startIndex, setStartIndex] = useState(0);
 	const cardsPerFrame = 2;
@@ -39,7 +41,7 @@ const Slider = ({ data }: any) => {
 					</button>
 
 					<div className="flex space-x-2 justify-center items-stretch w-full">
-						{visibleTickets.map((data: any, index: any) => (
+						{visibleTickets.map((data: any, index: number) => (
 							<LotteryCard lotteryData={data} key={index} />
 						))}
 					</div>

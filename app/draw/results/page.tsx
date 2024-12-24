@@ -14,17 +14,17 @@ export interface Ticket {
 	purchasedDate: string;
 }
 
-interface DrawResult {
-	id: string;
-	lotteryName: string;
-	drawDate: string;
-	winningNumbers: string;
-	prizeTiers: {
-		tier: string;
-		amount: number;
-		winners: number;
-	}[];
-}
+// interface DrawResult {
+// 	id: string;
+// 	lotteryName: string;
+// 	drawDate: string;
+// 	winningNumbers: string;
+// 	prizeTiers: {
+// 		tier: string;
+// 		amount: number;
+// 		winners: number;
+// 	}[];
+// }
 
 const Tickets: Ticket[] = [
 	{
