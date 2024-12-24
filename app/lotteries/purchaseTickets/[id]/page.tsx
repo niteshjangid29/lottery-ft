@@ -1,10 +1,14 @@
 "use client";
 
 import NumberPicker from "@/components/NumberPicker";
-import { useSearchParams } from "next/navigation";
+import { deductFunds } from "@/redux/slices/walletSlice";
+import { SOLD_TICKETS_DATA } from "@/utils/data/SoldTicketsData";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { FaDice, FaMinus, FaPencilAlt, FaPlus } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
 
 interface TicketOption {
 	id: string;
@@ -18,6 +22,9 @@ export default function PurchaseTicketsPage() {
 	const [quantity, setQuantity] = useState(1);
 	const [customNumber, setCustomNumber] = useState<string>("");
 	const [selectedTickets, setSelectedTickets] = useState<TicketOption[]>([]);
+	const { balance } = useSelector((state: any) => state.wallet);
+	const router = useRouter();
+	const dispatch = useDispatch();
 
 	const searchParams = useSearchParams();
 
@@ -26,11 +33,14 @@ export default function PurchaseTicketsPage() {
 		name: searchParams.get("name") || "Lottery Name",
 		ticketPrice: parseInt(searchParams.get("ticketPrice") || "0"),
 		digitLength: parseInt(searchParams.get("digitLength") || "4"),
+		drawDate: searchParams.get("drawDate") || "YYYY-MM-DD",
 	};
 
 	const [numbers, setNumbers] = useState<string[]>(
 		Array(lotteryDetails.digitLength).fill("")
 	);
+
+	const [suggestions, setSuggestions] = useState<string[]>([]);
 
 	const handleNumberChange = (index: number, value: string) => {
 		const newNumbers = [...numbers];
@@ -40,9 +50,25 @@ export default function PurchaseTicketsPage() {
 	};
 
 	const generateRandomTicket = () => {
-		const randomNum = Math.random()
+		let randomNum = Math.random()
 			.toString()
 			.slice(2, 2 + lotteryDetails.digitLength);
+
+		while (randomNum[0] === "0") {
+			randomNum = Math.random()
+				.toString()
+				.slice(2, 2 + lotteryDetails.digitLength);
+		}
+
+		if (
+			SOLD_TICKETS_DATA.some((data) =>
+				data.purchasedTickets.includes(parseInt(randomNum))
+			) ||
+			selectedTickets.some((ticket) => ticket.numbers === randomNum)
+		) {
+			toast.error("Ticket not available");
+			return "";
+		}
 		return randomNum;
 	};
 
@@ -50,21 +76,112 @@ export default function PurchaseTicketsPage() {
 		setQuantity((prev) => (increment ? prev + 1 : Math.max(1, prev - 1)));
 	};
 
+	const getSuggestedTickets = (requestedNumber: string): string[] => {
+		// Get all unavailable numbers
+		const unavailableNumbers = [
+			...selectedTickets.map((ticket) => ticket.numbers),
+			...SOLD_TICKETS_DATA.filter(
+				(data) => data.lotteryName === lotteryDetails.name
+			).flatMap((data) =>
+				data.purchasedTickets.map((num) => num.toString())
+			),
+		];
+
+		const suggestions: string[] = [];
+		const requestedNum = parseInt(requestedNumber);
+		const digitLength = lotteryDetails.digitLength;
+
+		// Generate variations
+		const variations = [
+			// Increment
+			...Array(5)
+				.fill(0)
+				.map((_, i) =>
+					(requestedNum + i + 1).toString().padStart(digitLength, "1")
+				),
+			// Decrement
+			...Array(5)
+				.fill(0)
+				.map((_, i) =>
+					(requestedNum - i - 1).toString().padStart(digitLength, "1")
+				),
+			// Pattern match (keep first/last digits)
+			requestedNumber[0] +
+				Math.random()
+					.toString()
+					.slice(2, digitLength + 1),
+			Math.random().toString().slice(2, digitLength) +
+				requestedNumber[digitLength - 1],
+		];
+
+		// Filter valid suggestions
+		for (const num of variations) {
+			if (
+				num.length === digitLength &&
+				num[0] !== "0" && // No leading zeros
+				!unavailableNumbers.includes(num) &&
+				!suggestions.includes(num)
+			) {
+				suggestions.push(num);
+				if (suggestions.length >= 5) break;
+			}
+		}
+
+		return suggestions;
+	};
+
 	const addRandomTickets = () => {
-		const newTickets = Array(quantity)
-			.fill(null)
-			.map(() => ({
+		const newTickets = [];
+
+		for (let i = 0; i < quantity; i++) {
+			const randomNumber = generateRandomTicket();
+
+			if (randomNumber === "") {
+				toast.error("Failed to generate valid ticket");
+				continue;
+			}
+
+			newTickets.push({
 				id: Math.random().toString(),
 				type: "random" as const,
-				numbers: generateRandomTicket(),
+				numbers: randomNumber,
 				price: lotteryDetails.ticketPrice,
-			}));
-		setSelectedTickets([...selectedTickets, ...newTickets]);
+			});
+		}
+
+		if (newTickets.length > 0) {
+			setSelectedTickets([...selectedTickets, ...newTickets]);
+			toast.success(`Added ${newTickets.length} tickets`);
+		}
+
 		setQuantity(1);
 	};
 
+	// do not add tickets if they are already selected or purchased
 	const addCustomTicket = () => {
 		if (customNumber.length === lotteryDetails.digitLength) {
+			if (
+				selectedTickets.some(
+					(ticket) => ticket.numbers === customNumber
+				)
+			) {
+				toast.error("Ticket already selected");
+				setSuggestions(getSuggestedTickets(customNumber));
+				return;
+			}
+
+			if (
+				SOLD_TICKETS_DATA.some(
+					(data) =>
+						data.lotteryName === lotteryDetails.name &&
+						data.purchasedTickets.includes(parseInt(customNumber))
+				)
+			) {
+				toast.error("Ticket not available");
+				setSuggestions(getSuggestedTickets(customNumber));
+				return;
+			}
+
 			setSelectedTickets([
 				...selectedTickets,
 				{
@@ -75,7 +192,23 @@ export default function PurchaseTicketsPage() {
 				},
 			]);
 			setCustomNumber("");
+			setSuggestions([]);
+			toast.success("Added 1 ticket");
 		}
+	};
+
+	const totalPrice = selectedTickets.reduce(
+		(sum, ticket) => sum + ticket.price,
+		0
+	);
+
+	const handleCheckout = () => {
+		if (balance < totalPrice) {
+			toast.error("Insufficient balance");
+			router.push("/wallet");
+		}
+
+		dispatch(deductFunds(totalPrice));
 	};
 
 	const deleteTicket = (ticket: TicketOption) => {
@@ -90,12 +223,20 @@ export default function PurchaseTicketsPage() {
 					<h1 className="text-3xl font-bold text-gray-800 mb-2">
 						{lotteryDetails.name}
 					</h1>
-					<p className="text-gray-600">
-						Ticket Price:{" "}
-						<span className="font-bold">
-							₹ {lotteryDetails.ticketPrice}
-						</span>
-					</p>
+					<div className="flex gap-2 justify-between">
+						<p className="text-gray-600 text-xs">
+							Ticket Price:{" "}
+							<span className="font-bold">
+								₹ {lotteryDetails.ticketPrice}
+							</span>
+						</p>
+						<p className="text-gray-600 text-xs">
+							Draw Date:{" "}
+							<span className="font-bold">
+								{lotteryDetails.drawDate}
+							</span>
+						</p>
+					</div>
 				</div>
 
 				{/* Tab Selection */}
@@ -173,6 +314,29 @@ export default function PurchaseTicketsPage() {
 										)
 									)}
 								</div>
+
+								{suggestions.length > 0 && (
+									<div>
+										<p className="text-gray-600">
+											Ticket not available. Try these
+											numbers:
+										</p>
+										<div className="flex flex-row flex-wrap mt-2 gap-2">
+											{suggestions.map((num) => (
+												<button
+													key={num}
+													className="block text-center px-2 py-1 hover:bg-blue-200 bg-gray-100 rounded"
+													onClick={() =>
+														setCustomNumber(num)
+													}
+												>
+													{num}
+												</button>
+											))}
+										</div>
+									</div>
+								)}
+
 								<button
 									className="w-full bg-blue-500 text-white py-3 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
 									onClick={addCustomTicket}
@@ -197,6 +361,11 @@ export default function PurchaseTicketsPage() {
 						<p className="text-gray-600">No tickets selected yet</p>
 					) : (
 						<div className="space-y-4">
+							<div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+								<p className="text-gray-600">Ticket No.</p>
+								<p className="text-gray-600">Price</p>
+								<p className="text-gray-600">""</p>
+							</div>
 							{selectedTickets.map((ticket) => (
 								<div
 									key={ticket.id}
@@ -215,15 +384,12 @@ export default function PurchaseTicketsPage() {
 							<div className="border-t pt-4">
 								<div className="flex justify-between font-bold">
 									<span>Total:</span>
-									<span>
-										₹
-										{selectedTickets.reduce(
-											(sum, ticket) => sum + ticket.price,
-											0
-										)}
-									</span>
+									<span>₹{totalPrice}</span>
 								</div>
-								<button className="w-full mt-4 bg-green-500 text-white py-3 rounded-lg">
+								<button
+									className="w-full mt-4 bg-green-500 text-white py-3 rounded-lg"
+									onClick={handleCheckout}
+								>
 									Proceed to Checkout
 								</button>
 							</div>

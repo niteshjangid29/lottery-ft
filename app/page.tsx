@@ -1,5 +1,5 @@
 import CardSlider from "@/components/CardSlider";
-import Slider from "@/components/slider";
+import Slider from "@/components/Slider";
 import { DUMMY_LOTTERIES } from "@/utils/data/lotteryData";
 import Link from "next/link";
 
@@ -38,7 +38,8 @@ export default function Home() {
 					<h2 className="text-2xl font-semibold">
 						Special Promotion!
 					</h2>
-					<p>Buy 2 tickets and get 1 free! Limited time offer.</p>
+					<p>Buy 10 tickets and get 1 free!</p>
+					<p>Limited time offer.</p>
 				</div>
 
 				{/* Recent Winners Section */}
@@ -59,9 +60,9 @@ export default function Home() {
 					<p className="text-gray-600 mt-2">
 						Have any questions? Reach out to us at
 					</p>
-					<p className="text-gray-600 mt-2">
+					<p className="text-blue-600 mt-2">
 						<a href="mailto:support@lotterygame.com">
-							support@lotterygame.com
+							support@lotto-g.com
 						</a>
 					</p>
 				</div>

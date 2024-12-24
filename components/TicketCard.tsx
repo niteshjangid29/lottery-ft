@@ -1,22 +1,27 @@
+import { LotteryItem } from "@/utils/data/lotteryData";
 import Link from "next/link";
 import React from "react";
 
-interface LotteryItem {
-	id: number;
-	name: string;
-	drawDate: string;
-	drawTime: string;
-	prizeAmount: string;
-	ticketPrice: number;
-	category: string;
-	digitLength: number;
-}
+// interface LotteryItem {
+// 	id: number;
+// 	name: string;
+// 	drawDate: string;
+// 	drawTime: string;
+// 	prizeAmount: string;
+// 	ticketPrice: number;
+// 	category: string;
+// 	digitLength: number;
+// }
 
 interface LotteryCardProps {
 	lotteryData: LotteryItem;
 }
 
 const LotteryCard: React.FC<LotteryCardProps> = ({ lotteryData }) => {
+	const grandPrize =
+		parseInt(lotteryData.prizeAmounts[0].amount.split(",").join("")) /
+		100000;
+
 	return (
 		<div>
 			<div className="flex flex-col justify-center gap-2 items-center bg-[#526799] p-2 md:p-4 rounded-t-xl w-[150px] h-auto md:w-[230px]">
@@ -28,7 +33,7 @@ const LotteryCard: React.FC<LotteryCardProps> = ({ lotteryData }) => {
 						{"Win First Prize"}
 					</p>
 					<p className="text-white text-2xl font-bold">
-						{lotteryData.prizeAmount}
+						₹{grandPrize} Lakhs
 					</p>
 				</div>
 				<div className="flex flex-wrap items-center justify-around gap-2 w-full">
@@ -58,7 +63,7 @@ const LotteryCard: React.FC<LotteryCardProps> = ({ lotteryData }) => {
 								name: lotteryData.name,
 								drawDate: lotteryData.drawDate,
 								drawTime: lotteryData.drawTime,
-								prizeAmount: lotteryData.prizeAmount,
+								// prizeAmount: lotteryData.prizeAmounts,
 								ticketPrice: lotteryData.ticketPrice,
 								category: lotteryData.category,
 								digitLength: lotteryData.digitLength,
