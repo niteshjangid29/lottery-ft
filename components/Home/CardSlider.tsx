@@ -3,22 +3,22 @@
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Slider from "react-slick";
-import LotteryCard from "./TicketCard";
+import LotteryCard from "../TicketCard";
 import { DUMMY_LOTTERIES } from "@/utils/data/lotteryData";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { fetchAllLotteries } from "@/redux/slices/lotterySlice";
 
 const CardSlider: React.FC = () => {
 	const settings = {
 		dots: true,
+		className: "center",
 		infinite: true,
+		centerPadding: "60px",
 		slidesToShow: 5,
-		slidesToScroll: 1,
-		autoplay: true,
-		speed: 4000,
-		autoplaySpeed: 3000,
-		pauseOnHover: true,
-		initialSlide: 0,
+		swipeToSlide: true,
 		responsive: [
 			{
 				breakpoint: 1024,
@@ -31,17 +31,27 @@ const CardSlider: React.FC = () => {
 				breakpoint: 600,
 				settings: {
 					slidesToShow: 2,
-					slidesToScroll: 1,
+					// slidesToScroll: 2,
 				},
 			},
 		],
 	};
 
+	const { lotteries } = useSelector(
+		(state: RootState) => state.lottery
+	) as any;
+
+	const dispatch = useDispatch<AppDispatch>();
+
+	useEffect(() => {
+		dispatch(fetchAllLotteries());
+	}, [dispatch]);
+
 	return (
 		<div className="px-4 mb-10">
 			<Slider {...settings} className="center">
-				{DUMMY_LOTTERIES.map((lottery, index) => (
-					<LotteryCard key={index} lotteryData={lottery} />
+				{lotteries.map((lottery: any) => (
+					<LotteryCard key={lottery._id} lotteryData={lottery} />
 				))}
 			</Slider>
 		</div>
