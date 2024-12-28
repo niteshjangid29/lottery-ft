@@ -106,6 +106,22 @@ export const fetchTicketsByLotteryId = createAsyncThunk(
   }
 );
 
+export const userLogin = createAsyncThunk(
+  "user/login",
+  async (formData: { phone: string; otp: string; countryCode: string }) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/login`,
+        formData
+      );
+
+      return response.data;
+    } catch (error: any) {
+      return error.response?.data || "Failed to login";
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState,
