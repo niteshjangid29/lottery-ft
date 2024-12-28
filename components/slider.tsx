@@ -1,10 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import LotteryCard from "./TicketCard";
+import { LotteryItem } from "@/utils/data/lotteryData";
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
+interface SliderProps {
+	data: LotteryItem[];
+}
 
-const Slider = ({ data }: any) => {
+const Slider = ({ data }: SliderProps) => {
 	const [startIndex, setStartIndex] = useState(0);
 	const cardsPerFrame = 2;
 
@@ -41,9 +44,11 @@ const Slider = ({ data }: any) => {
 					</button>
 
 					<div className="flex space-x-2 justify-center items-stretch w-full">
-						{visibleTickets.map((data: any, index: number) => (
-							<LotteryCard lotteryData={data} key={index} />
-						))}
+						{visibleTickets.map(
+							(data: LotteryItem, index: number) => (
+								<LotteryCard lotteryData={data} key={index} />
+							)
+						)}
 					</div>
 
 					{/* Right Arrow */}

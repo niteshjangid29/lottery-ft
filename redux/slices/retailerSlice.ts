@@ -361,6 +361,13 @@ const retailerSlice = createSlice({
 			})
 			.addCase(fetchRetailerDetails.rejected, (state) => {
 				state.loading = false;
+			})
+			.addCase(getTransactionStats.fulfilled, (state, action) => {
+				state.stats = action.payload;
+				state.loading = false;
+			})
+			.addCase(getTransactionStats.rejected, (state) => {
+				state.loading = false;
 			});
 	},
 });

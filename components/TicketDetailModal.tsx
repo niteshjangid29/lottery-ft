@@ -1,4 +1,5 @@
-import { Ticket } from "@/app/draw/results/page";
+import { Ticket } from "@/utils/data/TicketsData";
+import { format, parse } from "date-fns";
 import { FaTimes } from "react-icons/fa";
 
 interface TicketDetailModalProps {
@@ -6,10 +7,9 @@ interface TicketDetailModalProps {
 	onClose: () => void;
 }
 
-const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
-	ticket,
-	onClose,
-}) => {
+const TicketDetailModal: React.FC<any> = ({ ticket, onClose }) => {
+	console.log("ticket", ticket);
+
 	return (
 		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 			<div className="bg-white rounded-lg w-[80%] max-w-md p-6 relative">
@@ -24,9 +24,11 @@ const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 					{/* Ticket Header */}
 					<div className="text-center border-b pb-4">
 						<h3 className="text-2xl font-bold">
-							{ticket.lotteryName}
+							{ticket.lottery_id.name}
 						</h3>
-						<p className="text-gray-500">Ticket #{ticket.number}</p>
+						<p className="text-gray-500">
+							Ticket #{ticket.ticket_number}
+						</p>
 					</div>
 
 					{/* Ticket Details */}
@@ -39,13 +41,24 @@ const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 						</div> */}
 						<div className="flex justify-between">
 							<span className="text-gray-600">Draw Date:</span>
-							<span>{ticket.drawDate}</span>
+							<span>
+								{format(
+									parse(
+										ticket.lottery_id.draw_date,
+										"d-M-yyyy",
+										new Date()
+									),
+									"dd-MM-yyyy"
+								)}
+							</span>
 						</div>
 						<div className="flex justify-between">
 							<span className="text-gray-600">
 								Purchase Date:
 							</span>
-							<span>{ticket.purchasedDate}</span>
+							<span>
+								{format(ticket.purchase_date, "dd-MM-yyyy")}
+							</span>
 						</div>
 						<div className="flex justify-between items-center">
 							<span className="text-gray-600">Status:</span>
@@ -58,7 +71,7 @@ const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 										: "bg-yellow-100 text-yellow-800"
 								}`}
 							>
-								{ticket.resultStatus.toUpperCase()}
+								{ticket.status.toUpperCase()}
 							</span>
 						</div>
 

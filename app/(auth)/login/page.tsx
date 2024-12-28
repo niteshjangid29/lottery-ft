@@ -49,7 +49,7 @@ function LoginPage() {
 				activeTab === "user" ? "/user/login" : "/retailer/login";
 
 			const response = await axios.post(
-				`http://localhost:4000/api/v1${endpoint}`,
+				`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`,
 				formData
 			);
 
@@ -57,7 +57,9 @@ function LoginPage() {
 				// Handle retailer login
 				dispatch(setProfile(response.data.retailer));
 				localStorage.setItem("retailerToken", response.data.token);
-				router.push("/retailer/dashboard");
+				router.push(
+					`/retailer/dashboard/?retailer_id=${response.data.retailer._id}`
+				);
 			} else {
 				// Handle user login
 				dispatch(login(response.data.user));

@@ -1,4 +1,4 @@
-import { LotteryItem } from "@/utils/data/lotteryData";
+import { LotteryDetails } from "@/redux/slices/lotterySlice";
 import Link from "next/link";
 import React from "react";
 
@@ -14,13 +14,15 @@ import React from "react";
 // }
 
 interface LotteryCardProps {
-	lotteryData: LotteryItem;
+	lotteryData: any;
+	affiliate_id?: string | null;
 }
 
-const LotteryCard: React.FC<LotteryCardProps> = ({ lotteryData }) => {
-	const grandPrize =
-		parseInt(lotteryData.prizeAmounts[0].amount.split(",").join("")) /
-		100000;
+const LotteryCard: React.FC<LotteryCardProps> = ({
+	lotteryData,
+	affiliate_id,
+}) => {
+	const grandPrize = lotteryData.prizeTiers[0].amount / 100000;
 
 	return (
 		<div>
@@ -40,13 +42,13 @@ const LotteryCard: React.FC<LotteryCardProps> = ({ lotteryData }) => {
 					<div className="flex flex-col items-center gap-1 md:gap-2">
 						<p className="text-white text-xs md:text-sm">Draw</p>
 						<p className="text-white text-xs md:text-sm">
-							{lotteryData.drawDate}
+							{lotteryData.draw_date}
 						</p>
 					</div>
 					<div className="flex flex-col items-center gap-1 md:gap-2">
 						<p className="text-white text-xs md:text-sm">Time</p>
 						<p className="text-white text-xs md:text-sm">
-							{lotteryData.drawTime}
+							{lotteryData.draw_time}
 						</p>
 					</div>
 				</div>
@@ -56,26 +58,14 @@ const LotteryCard: React.FC<LotteryCardProps> = ({ lotteryData }) => {
 				<div className="absolute top-0 right-0 w-[10px] h-[20px] rounded-s-full -translate-y-[50%] bg-gray-100"></div>
 				<div className="flex flex-col items-center justify-between gap-2 w-full">
 					<Link
-						href={{
-							pathname: `/lotteries/purchaseTickets/${lotteryData.id}`,
-							query: {
-								id: lotteryData.id,
-								name: lotteryData.name,
-								drawDate: lotteryData.drawDate,
-								drawTime: lotteryData.drawTime,
-								// prizeAmount: lotteryData.prizeAmounts,
-								ticketPrice: lotteryData.ticketPrice,
-								category: lotteryData.category,
-								digitLength: lotteryData.digitLength,
-							},
-						}}
+						href={`/lotteries/purchaseTickets/${lotteryData._id}/?affiliate_id=${affiliate_id}`}
 						className="bg-white text-gray-600 hover:text-white hover:outline hover:outline-white hover:bg-[#F37B67] py-1 md:py-2 px-4 md:px-6 rounded-full text-sm md:text-base transition-colors"
 					>
 						Buy Ticket
 					</Link>
 
 					<p className="text-white text-xs md:text-lg font-semibold">
-						Ticket Price: ₹ {lotteryData.ticketPrice}
+						Ticket Price: ₹ {lotteryData.ticket_price}
 					</p>
 				</div>
 			</div>
