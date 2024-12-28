@@ -11,11 +11,12 @@ const HowToUse = () => {
 					</div>
 					<div className="ml-4">
 						<h3 className="text-xl font-semibold text-gray-800">
-							Choose Your Lottery
+							Customer Purchases Ticket Online
 						</h3>
 						<p className="text-gray-600">
-							Browse through the list of available lotteries and
-							pick the one that excites you the most.
+							Customers visit the official Punjab Government
+							Portal. They choose a ticket number or have one
+							randomly assigned.
 						</p>
 					</div>
 				</div>
@@ -26,11 +27,11 @@ const HowToUse = () => {
 					</div>
 					<div className="ml-4">
 						<h3 className="text-xl font-semibold text-gray-800">
-							Select Numbers and Quantity
+							Payment is Directed to State Treasury
 						</h3>
 						<p className="text-gray-600">
-							Choose your lottery numbers and decide how many
-							tickets you'd like to purchase.
+							All payments from the purchase go directly to the
+							state government account.
 						</p>
 					</div>
 				</div>
@@ -41,11 +42,11 @@ const HowToUse = () => {
 					</div>
 					<div className="ml-4">
 						<h3 className="text-xl font-semibold text-gray-800">
-							Click "Buy Tickets"
+							Winning Ticket Verification
 						</h3>
 						<p className="text-gray-600">
-							Complete the payment process securely and easily by
-							clicking on the "Buy Tickets" button.
+							The system automatically verifies and validates the
+							winning ticket.
 						</p>
 					</div>
 				</div>
@@ -55,12 +56,25 @@ const HowToUse = () => {
 					</div>
 					<div className="ml-4">
 						<h3 className="text-xl font-semibold text-gray-800">
-							Wait for Draw
+							Affiliate Link Commissioning
 						</h3>
 						<p className="text-gray-600">
-							After a successful payment, your ticket will be
-							available in your My-Tickets section. Relax and get
-							ready to participate!
+							Prize payouts are directly processed through the
+							platform.
+						</p>
+					</div>
+				</div>
+				<div className="p-4 bg-gray-100 rounded-lg shadow-md flex items-center">
+					<div className="flex-shrink-0 w-12 h-12 bg-blue-500 text-white flex items-center justify-center rounded-full text-lg font-bold">
+						5
+					</div>
+					<div className="ml-4">
+						<h3 className="text-xl font-semibold text-gray-800">
+							Retailers share their affiliate links
+						</h3>
+						<p className="text-gray-600">
+							They earn a commission for each successful sale made
+							via their referral.
 						</p>
 					</div>
 				</div>
