@@ -30,13 +30,10 @@ function SignupPage() {
 
     if (!otpSent) {
       try {
-        const response = await axios.post(
-          `http://localhost:4000/api/v1/otp/sendOtp`,
-          {
-            phoneNumber: formData.phone,
-            countryCode: formData.countryCode,
-          }
-        );
+        await axios.post(`http://localhost:4000/api/v1/otp/sendOtp`, {
+          phoneNumber: formData.phone,
+          countryCode: formData.countryCode,
+        });
         setOtpSent(true);
       } catch (error: any) {
         toast.error(error.response?.data?.message || "Failed to send OTP");
