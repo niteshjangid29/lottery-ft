@@ -1,13 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import lotteryReducer from "./slices/lotterySlice";
 import walletReducer from "./slices/walletSlice";
-import userSlice from "./slices/userSlice";
+import userReducer from "./slices/userSlice";
+import retailerReducer from "./slices/retailerSlice";
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
     lottery: lotteryReducer,
     wallet: walletReducer,
-    user: userSlice,
+    user: userReducer,
+    retailer: retailerReducer,
   },
 });
 
