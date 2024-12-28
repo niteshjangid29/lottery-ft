@@ -36,24 +36,52 @@ const CreditPage = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10;
 
-	useEffect(() => {
-		dispatch(getWalletBalance())
-			.unwrap()
-			.then((data) => {
-				console.log("Wallet balance fetched successfully:", data);
-			})
-			.catch((error) => {
-				console.error("Failed to fetch wallet balance:", error);
-			});
+	if (!authUser) {
+		return (
+			<div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+				<div className="max-w-md mx-auto p-8">
+					<div className="text-center">
+						<h2 className="text-2xl font-bold text-gray-900 mb-4">
+							Please Login with a Customer Account
+						</h2>
+						<button
+							onClick={() => router.push("/login")}
+							className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors"
+						>
+							Login
+						</button>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
-		dispatch(getWalletTransactions())
-			.unwrap()
-			.then((data) => {
-				console.log("Wallet transactions fetched successfully:", data);
-			})
-			.catch((error) => {
-				console.error("Failed to fetch wallet transactions:", error);
-			});
+	useEffect(() => {
+		if (authUser) {
+			dispatch(getWalletBalance())
+				.unwrap()
+				.then((data) => {
+					console.log("Wallet balance fetched successfully:", data);
+				})
+				.catch((error) => {
+					console.error("Failed to fetch wallet balance:", error);
+				});
+
+			dispatch(getWalletTransactions())
+				.unwrap()
+				.then((data) => {
+					console.log(
+						"Wallet transactions fetched successfully:",
+						data
+					);
+				})
+				.catch((error) => {
+					console.error(
+						"Failed to fetch wallet transactions:",
+						error
+					);
+				});
+		}
 	}, [dispatch]);
 
 	const handleAddFunds = () => {
@@ -79,64 +107,10 @@ const CreditPage = () => {
 		setError("");
 	};
 
-	// Calculate pagination
 	const totalPages = Math.ceil(transactions.length / itemsPerPage);
 	const startIndex = (currentPage - 1) * itemsPerPage;
 	const endIndex = startIndex + itemsPerPage;
-	const currentTransactions = transactions.slice(startIndex, endIndex);
-
-	// const handlePurchaseTicket = () => {
-	// 	if (!ticketId || !ticketPrice) {
-	// 		setError("Invalid ticket information");
-	// 		return;
-	// 	}
-
-	// 	const price = parseFloat(ticketPrice);
-	// 	if (balance < price) {
-	// 		setError("Insufficient balance. Please add funds to your wallet.");
-	// 		return;
-	// 	}
-
-	// 	setIsProcessing(true);
-	// 	try {
-	// 		// Deduct funds for ticket purchase
-	// 		dispatch(
-	// 			recordTransaction({
-	// 				amount: price,
-	// 				transaction_type: "wallet",
-	// 				lottery_id: null,
-	// 				operation: "subtract",
-	// 			})
-	// 		);
-
-	// 		// Redirect to success page or ticket details
-	// 		router.push(`/tickets/${ticketId}?status=success`);
-	// 	} catch (error) {
-	// 		setError("Failed to process the purchase. Please try again.");
-	// 	} finally {
-	// 		setIsProcessing(false);
-	// 	}
-	// };
-
-	if (!authUser) {
-		return (
-			<div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-				<div className="max-w-md mx-auto p-8">
-					<div className="text-center">
-						<h2 className="text-2xl font-bold text-gray-900 mb-4">
-							Please Login to Continue
-						</h2>
-						<button
-							onClick={() => router.push("/login")}
-							className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors"
-						>
-							Login
-						</button>
-					</div>
-				</div>
-			</div>
-		);
-	}
+	const currentTransactions = transactions?.slice(startIndex, endIndex);
 
 	return (
 		<div className="min-h-screen bg-gray-100 py-20 px-4 sm:px-6 lg:px-8">

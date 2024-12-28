@@ -25,7 +25,29 @@ export default function ResultsPage() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10;
 
+	const { authUser } = useSelector((state: RootState) => state.user);
+
 	const router = useRouter();
+
+	if (!authUser) {
+		return (
+			<div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+				<div className="max-w-md mx-auto p-8">
+					<div className="text-center">
+						<h2 className="text-2xl font-bold text-gray-900 mb-4">
+							Please Login with a Customer Account
+						</h2>
+						<button
+							onClick={() => router.push("/login")}
+							className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors"
+						>
+							Login
+						</button>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	useEffect(() => {
 		dispatch(getUserTickets());

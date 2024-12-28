@@ -6,13 +6,15 @@ import { FaSearch, FaFilter } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchAllLotteries } from "@/redux/slices/lotterySlice";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LotteriesPage(): React.ReactElement {
 	const [selectedCategory, setSelectedCategory] = useState("all");
 	const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const dispatch = useDispatch<AppDispatch>();
+	const { authUser } = useSelector((state: RootState) => state.user);
+	const router = useRouter();
 
 	const { lotteries } = useSelector(
 		(state: RootState) => state.lottery
@@ -25,15 +27,37 @@ export default function LotteriesPage(): React.ReactElement {
 
 	const itemsPerPage = 6;
 
+	if (!authUser) {
+		return (
+			<div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+				<div className="max-w-md mx-auto p-8">
+					<div className="text-center">
+						<h2 className="text-2xl font-bold text-gray-900 mb-4">
+							Please Login with a Customer Account
+						</h2>
+						<button
+							onClick={() => router.push("/login")}
+							className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors"
+						>
+							Login
+						</button>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	useEffect(() => {
-		dispatch(fetchAllLotteries())
-			.unwrap()
-			.then((data) => {
-				console.log("Lotteries fetched successfully:", data);
-			})
-			.catch((error) => {
-				console.error("Failed to fetch lotteries:", error);
-			});
+		if (authUser) {
+			dispatch(fetchAllLotteries())
+				.unwrap()
+				.then((data) => {
+					console.log("Lotteries fetched successfully:", data);
+				})
+				.catch((error) => {
+					console.error("Failed to fetch lotteries:", error);
+				});
+		}
 	}, [dispatch]);
 
 	// Filter Logic
