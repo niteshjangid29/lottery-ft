@@ -1,21 +1,36 @@
 "use client";
 
 import NumberPicker from "@/components/NumberPicker";
-import { deductFunds } from "@/redux/slices/walletSlice";
+import {
+	fetchAllLotteries,
+	fetchLotteryById,
+	LotteryDetails,
+} from "@/redux/slices/lotterySlice";
+import { createAffiliateTransaction } from "@/redux/slices/retailerSlice";
+import {
+	addToCart,
+	clearCart,
+	fetchTicketsByLotteryId,
+	purchaseTicket,
+	recordTransaction,
+	removeFromCart,
+	setCartTickets,
+} from "@/redux/slices/userSlice";
+import { getWalletBalance, setBalance } from "@/redux/slices/walletSlice";
+import { AppDispatch, RootState } from "@/redux/store";
 import { SOLD_TICKETS_DATA } from "@/utils/data/SoldTicketsData";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { stat } from "fs";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FaDice, FaMinus, FaPencilAlt, FaPlus } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-
 interface TicketOption {
 	id: string;
 	type: "random" | "custom";
-	numbers: string;
+	number: string;
 	price: number;
 }
 
@@ -24,22 +39,51 @@ export default function PurchaseTicketsPage() {
 	const [quantity, setQuantity] = useState(1);
 	const [customNumber, setCustomNumber] = useState<string>("");
 	const [selectedTickets, setSelectedTickets] = useState<TicketOption[]>([]);
-	const { balance } = useSelector((state: any) => state.wallet);
+	const { balance } = useSelector((state: RootState) => state.wallet);
+	const [lotteryDetails, setLotteryDetails] = useState<any>({});
+	const [soldTickets, setSoldTickets] = useState<any>([]);
+	const { profile: retailer } = useSelector(
+		(state: RootState) => state.retailer
+	) as any;
+
+	const [transactionId, setTransactionId] = useState("");
+
+	const { cartTickets } = useSelector((state: RootState) => state.user);
+
 	const router = useRouter();
-	const dispatch = useDispatch();
+	const dispatch = useDispatch<AppDispatch>();
 
-	const searchParams = useSearchParams();
+	const { id } = useParams();
+	const query = useSearchParams();
+	const affiliate_id = query.get("affiliate_id");
 
-	// Mock lottery details (replace with actual data)
-	const lotteryDetails = {
-		name: searchParams.get("name") || "Lottery Name",
-		ticketPrice: parseInt(searchParams.get("ticketPrice") || "0"),
-		digitLength: parseInt(searchParams.get("digitLength") || "4"),
-		drawDate: searchParams.get("drawDate") || "YYYY-MM-DD",
-	};
+	console.log("lotteryDetails", lotteryDetails);
+
+	useEffect(() => {
+		if (id) {
+			dispatch(fetchLotteryById(id))
+				.unwrap()
+				.then((data) => {
+					setLotteryDetails(data);
+				})
+				.catch((error) => {
+					console.error("Failed to fetch lottery:", error);
+				});
+			dispatch(fetchTicketsByLotteryId(id))
+				.unwrap()
+				.then((data) => {
+					setSoldTickets(data);
+				})
+				.catch((error) => {
+					console.error("Failed to fetch tickets:", error);
+				});
+		}
+		dispatch(getWalletBalance());
+		setSelectedTickets(cartTickets);
+	}, [dispatch, id]);
 
 	const [numbers, setNumbers] = useState<string[]>(
-		Array(lotteryDetails.digitLength).fill("")
+		Array(lotteryDetails.digit_length).fill("")
 	);
 
 	const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -54,19 +98,19 @@ export default function PurchaseTicketsPage() {
 	const generateRandomTicket = () => {
 		let randomNum = Math.random()
 			.toString()
-			.slice(2, 2 + lotteryDetails.digitLength);
+			.slice(2, 2 + lotteryDetails.digit_length);
 
 		while (randomNum[0] === "0") {
 			randomNum = Math.random()
 				.toString()
-				.slice(2, 2 + lotteryDetails.digitLength);
+				.slice(2, 2 + lotteryDetails.digit_length);
 		}
 
 		if (
-			SOLD_TICKETS_DATA.some((data) =>
-				data.purchasedTickets.includes(parseInt(randomNum))
+			soldTickets.some(
+				(data: any) => data.ticket_number === parseInt(randomNum)
 			) ||
-			selectedTickets.some((ticket) => ticket.numbers === randomNum)
+			selectedTickets.some((ticket) => ticket.number === randomNum)
 		) {
 			toast.error("Ticket not available");
 			return "";
@@ -81,17 +125,17 @@ export default function PurchaseTicketsPage() {
 	const getSuggestedTickets = (requestedNumber: string): string[] => {
 		// Get all unavailable numbers
 		const unavailableNumbers = [
-			...selectedTickets.map((ticket) => ticket.numbers),
-			...SOLD_TICKETS_DATA.filter(
-				(data) => data.lotteryName === lotteryDetails.name
-			).flatMap((data) =>
-				data.purchasedTickets.map((num) => num.toString())
-			),
+			...selectedTickets.map((ticket) => ticket.number),
+			...soldTickets
+				.filter((data: any) => data.lotteryName === lotteryDetails.name)
+				.flatMap((data: any) =>
+					data.purchasedTickets.map((num: any) => num.toString())
+				),
 		];
 
 		const suggestions: string[] = [];
 		const requestedNum = parseInt(requestedNumber);
-		const digitLength = lotteryDetails.digitLength;
+		const digitLength = lotteryDetails.digit_length;
 
 		// Generate variations
 		const variations = [
@@ -146,13 +190,22 @@ export default function PurchaseTicketsPage() {
 			newTickets.push({
 				id: Math.random().toString(),
 				type: "random" as const,
-				numbers: randomNumber,
-				price: lotteryDetails.ticketPrice,
+				number: randomNumber,
+				price: lotteryDetails.ticket_price,
 			});
+			dispatch(
+				addToCart({
+					id: Math.random().toString(),
+					type: "random" as const,
+					number: randomNumber,
+					price: lotteryDetails.ticket_price,
+				})
+			);
 		}
 
 		if (newTickets.length > 0) {
 			setSelectedTickets([...selectedTickets, ...newTickets]);
+
 			toast.success(`Added ${newTickets.length} tickets`);
 		}
 
@@ -161,11 +214,9 @@ export default function PurchaseTicketsPage() {
 
 	// do not add tickets if they are already selected or purchased
 	const addCustomTicket = () => {
-		if (customNumber.length === lotteryDetails.digitLength) {
+		if (customNumber.length === lotteryDetails.digit_length) {
 			if (
-				selectedTickets.some(
-					(ticket) => ticket.numbers === customNumber
-				)
+				selectedTickets.some((ticket) => ticket.number === customNumber)
 			) {
 				toast.error("Ticket already selected");
 				setSuggestions(getSuggestedTickets(customNumber));
@@ -173,10 +224,10 @@ export default function PurchaseTicketsPage() {
 			}
 
 			if (
-				SOLD_TICKETS_DATA.some(
-					(data) =>
+				soldTickets.some(
+					(data: any) =>
 						data.lotteryName === lotteryDetails.name &&
-						data.purchasedTickets.includes(parseInt(customNumber))
+						data.ticket_number === parseInt(customNumber)
 				)
 			) {
 				toast.error("Ticket not available");
@@ -189,12 +240,20 @@ export default function PurchaseTicketsPage() {
 				{
 					id: Math.random().toString(),
 					type: "custom",
-					numbers: customNumber,
-					price: lotteryDetails.ticketPrice,
+					number: customNumber,
+					price: lotteryDetails.ticket_price,
 				},
 			]);
 			setCustomNumber("");
 			setSuggestions([]);
+			dispatch(
+				addToCart({
+					id: Math.random().toString(),
+					type: "custom",
+					number: customNumber,
+					price: lotteryDetails.ticket_price,
+				})
+			);
 			toast.success("Added 1 ticket");
 		}
 	};
@@ -204,17 +263,103 @@ export default function PurchaseTicketsPage() {
 		0
 	);
 
-	const handleCheckout = () => {
+	console.log("balance", balance);
+	console.log("totalPrice", totalPrice);
+	console.log("selectedTickets", selectedTickets);
+	console.log("cartTickets", cartTickets);
+	console.log("retailer_id", retailer?._id);
+	console.log("transactionId", transactionId);
+
+	const ticketNumbers = selectedTickets.map((ticket) => ticket.number);
+	console.log("ticketNumbers", ticketNumbers);
+
+	const handleCheckout = async () => {
 		if (balance < totalPrice) {
 			toast.error("Insufficient balance");
-			router.push("/wallet");
+			router.push("/credit");
 		}
 
-		dispatch(deductFunds(totalPrice));
+		// const ticketNumbers = selectedTickets.map((ticket) => ticket.number);
+		// console.log("ticketNumbers", ticketNumbers);
+
+		// dispatch(
+		// 	recordTransaction({
+		// 		amount: totalPrice,
+		// 		transaction_type: "purchase",
+		// 		lottery_id: lotteryDetails._id,
+		// 		operation: "subtract",
+		// 		ticket_numbers: ticketNumbers,
+		// 	})
+		// )
+		// 	.unwrap()
+		// 	.then((data) => {
+		// 		toast.success("Tickets Purchased!");
+		// 		console.log("Transaction", data.transaction);
+		// 		setTransactionId(data.transaction._id);
+		// 		dispatch(setBalance(data.updatedBalance));
+		// 	})
+		// 	.catch((error) => {
+		// 		console.error("Transaction Failed", error);
+		// 		toast.error("Transaction Failed");
+		// 	});
+
+		const transaction = await dispatch(
+			recordTransaction({
+				amount: totalPrice,
+				transaction_type: "purchase",
+				lottery_id: lotteryDetails?._id,
+				operation: "subtract",
+				ticket_numbers: ticketNumbers,
+			})
+		).unwrap();
+
+		dispatch(setBalance(transaction.updatedBalance));
+
+		if (affiliate_id) {
+			// create affiliate transaction
+			dispatch(
+				createAffiliateTransaction({
+					retailerId: retailer?._id,
+					transactionId: transaction.transaction?._id,
+					amount: totalPrice,
+				})
+			)
+				.unwrap()
+				.then((data) => {
+					console.log(
+						"Affiliate Transaction created successfully",
+						data
+					);
+				})
+				.catch((error) => {
+					console.error(
+						"Failed to create affiliate transaction",
+						error
+					);
+				});
+		}
+
+		dispatch(
+			purchaseTicket({
+				tickets: ticketNumbers,
+				lottery_id: lotteryDetails._id,
+			})
+		)
+			.then(() => {
+				console.log("purchaseTicket Success");
+				toast.success("Tickets Purchased!");
+				setSelectedTickets([]);
+				dispatch(clearCart());
+			})
+			.catch((error) => {
+				console.error("Error in purchaseTicket", error);
+				// toast.error("Transaction Failed");
+			});
 	};
 
 	const deleteTicket = (ticket: TicketOption) => {
 		setSelectedTickets(selectedTickets.filter((t) => t.id !== ticket.id));
+		dispatch(removeFromCart(ticket.id));
 	};
 
 	return (
@@ -229,13 +374,13 @@ export default function PurchaseTicketsPage() {
 						<p className="text-gray-600 text-xs">
 							Ticket Price:{" "}
 							<span className="font-bold">
-								₹ {lotteryDetails.ticketPrice}
+								₹ {lotteryDetails.ticket_price}
 							</span>
 						</p>
 						<p className="text-gray-600 text-xs">
 							Draw Date:{" "}
 							<span className="font-bold">
-								{lotteryDetails.drawDate}
+								{lotteryDetails.draw_date}
 							</span>
 						</p>
 					</div>
@@ -302,7 +447,7 @@ export default function PurchaseTicketsPage() {
 							<div className="space-y-4">
 								<div className="flex items-center justify-center space-x-4">
 									{Array.from(
-										{ length: lotteryDetails.digitLength },
+										{ length: lotteryDetails.digit_length },
 										(_, i) => (
 											<NumberPicker
 												key={i}
@@ -310,7 +455,7 @@ export default function PurchaseTicketsPage() {
 												value={numbers[i]}
 												onChange={handleNumberChange}
 												totalDigits={
-													lotteryDetails.digitLength
+													lotteryDetails.digit_length
 												}
 											/>
 										)
@@ -344,7 +489,7 @@ export default function PurchaseTicketsPage() {
 									onClick={addCustomTicket}
 									disabled={
 										customNumber.length !==
-										lotteryDetails.digitLength
+										lotteryDetails.digit_length
 									}
 								>
 									Add Custom Ticket
@@ -368,7 +513,7 @@ export default function PurchaseTicketsPage() {
 									key={ticket.id}
 									className="flex justify-between items-center p-3 bg-gray-50 rounded"
 								>
-									<span>{ticket.numbers}</span>
+									<span>{ticket.number}</span>
 									<span>₹{ticket.price}</span>
 									<button
 										className="p-1 rounded-full"

@@ -1,75 +1,99 @@
 "use client";
 
 import TicketDetailModal from "@/components/TicketDetailModal";
-import { useState } from "react";
+import { DRAW_RESULTS_DATA, DrawResult } from "@/utils/data/DrawResultsData";
+import { Ticket, TICKETS_DATA } from "@/utils/data/TicketsData";
+import { useEffect, useState } from "react";
 import { FaHistory, FaSearch, FaTicketAlt } from "react-icons/fa";
-
-export interface Ticket {
-	id: string;
-	lotteryName: string;
-	number: string;
-	drawDate: string;
-	resultStatus: "pending" | "won" | "lost";
-	prizeAmount?: number;
-	purchasedDate: string;
-}
-
-// interface DrawResult {
-// 	id: string;
-// 	lotteryName: string;
-// 	drawDate: string;
-// 	winningNumbers: string;
-// 	prizeTiers: {
-// 		tier: string;
-// 		amount: number;
-// 		winners: number;
-// 	}[];
-// }
-
-const Tickets: Ticket[] = [
-	{
-		id: "1",
-		lotteryName: "Daily Jackpot",
-		number: "1234",
-		drawDate: "12-1-2025",
-		resultStatus: "pending",
-		prizeAmount: 1000,
-		purchasedDate: "12-12-2024",
-	},
-	{
-		id: "2",
-		lotteryName: "Weekly Special",
-		number: "34832",
-		drawDate: "12-12-2024",
-		resultStatus: "lost",
-		prizeAmount: 500,
-		purchasedDate: "10-12-2024",
-	},
-	{
-		id: "3",
-		lotteryName: "Weekly Special",
-		number: "76423",
-		drawDate: "21-12-2024",
-		resultStatus: "won",
-		prizeAmount: 200,
-		purchasedDate: "10-12-2024",
-	},
-	{
-		id: "4",
-		lotteryName: "Daily Jackpot",
-		number: "9012",
-		drawDate: "12-12-2024",
-		resultStatus: "lost",
-		prizeAmount: 1000,
-		purchasedDate: "9-12-2024",
-	},
-];
+import { format, parse } from "date-fns";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { getUserTickets } from "@/redux/slices/userSlice";
 
 export default function ResultsPage() {
 	const [activeTab, setActiveTab] = useState<"tickets" | "history">(
 		"tickets"
 	);
 	const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+	// const [selectedDrawResult, setSelectedDrawResult] =
+	// 	useState<DrawResult | null>(null);
+
+	const dispatch = useDispatch<AppDispatch>();
+	const { userTickets } = useSelector((state: RootState) => state.user);
+
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 10;
+
+	const router = useRouter();
+
+	useEffect(() => {
+		dispatch(getUserTickets());
+	}, [dispatch]);
+
+	console.log("userTickets", userTickets);
+
+	// Filter States
+	const [searchQuery, setSearchQuery] = useState("");
+	const [ticketFilter, setTicketFilter] = useState("all");
+	const [drawResultFilter, setDrawResultFilter] = useState("all");
+	const [dateFilter, setDateFilter] = useState("");
+
+	// Filter logic
+	const filteredTickets = userTickets.filter((ticket) => {
+		const filterMatch =
+			ticketFilter === "all" || ticket.resultStatus === ticketFilter;
+		const searchMatch =
+			ticket.ticket_number.toString().includes(searchQuery) ||
+			ticket.lotteryName.includes(searchQuery);
+		return filterMatch && searchMatch;
+	});
+
+	// there is a bug in the filter logic for draw results date filter
+	const filteredDrawResults = DRAW_RESULTS_DATA.filter((result) => {
+		// Parse the date string to Date object first
+		const parsedDrawDate = parse(result.drawDate, "d-M-yyyy", new Date());
+		const drawDate = format(parsedDrawDate, "dd-MM-yyyy");
+
+		const filterDate = dateFilter
+			? format(new Date(dateFilter), "dd-MM-yyyy")
+			: "";
+
+		const filterMatch =
+			drawResultFilter === "all" ||
+			result.lotteryName.toLowerCase() === drawResultFilter;
+		const dateMatch = !dateFilter || drawDate === filterDate;
+		return filterMatch && dateMatch;
+	});
+
+	// Calculate pagination for tickets
+	const totalTicketPages = Math.ceil(filteredTickets.length / itemsPerPage);
+	const ticketStartIndex = (currentPage - 1) * itemsPerPage;
+	const ticketEndIndex = ticketStartIndex + itemsPerPage;
+	const currentTickets = filteredTickets.slice(
+		ticketStartIndex,
+		ticketEndIndex
+	);
+
+	// Calculate pagination for draw results
+	const totalDrawResultPages = Math.ceil(
+		filteredDrawResults.length / itemsPerPage
+	);
+	const drawResultStartIndex = (currentPage - 1) * itemsPerPage;
+	const drawResultEndIndex = drawResultStartIndex + itemsPerPage;
+	const currentDrawResults = filteredDrawResults.slice(
+		drawResultStartIndex,
+		drawResultEndIndex
+	);
+
+	const resetFilters = () => {
+		setSearchQuery("");
+		setTicketFilter("all");
+		setDrawResultFilter("all");
+		setDateFilter("");
+	};
+
+	console.log("filteredTickets", filteredTickets);
 
 	return (
 		<div className="min-h-screen py-16 bg-gray-100 md:pb-0">
@@ -117,9 +141,19 @@ export default function ResultsPage() {
 										type="text"
 										placeholder="Search tickets..."
 										className="w-full pl-10 pr-4 py-2 border rounded-lg"
+										value={searchQuery}
+										onChange={(e) =>
+											setSearchQuery(e.target.value)
+										}
 									/>
 								</div>
-								<select className="border rounded-lg px-4 py-2">
+								<select
+									className="border rounded-lg px-4 py-2"
+									value={ticketFilter}
+									onChange={(e) =>
+										setTicketFilter(e.target.value)
+									}
+								>
 									<option value="all">All Status</option>
 									<option value="pending">Pending</option>
 									<option value="won">Won</option>
@@ -127,45 +161,127 @@ export default function ResultsPage() {
 								</select>
 							</div>
 							{/* Tickets List */}
-							<div className="bg-white rounded-lg shadow">
-								{Tickets.map((ticket) => (
-									<div
-										key={ticket.id}
-										onClick={() =>
-											setSelectedTicket(ticket)
-										}
-										className="p-4 border-b cursor-pointer hover:bg-gray-50"
-									>
-										<div className="flex justify-between items-center">
-											<div>
-												<h3 className="font-semibold">
-													{ticket.lotteryName}
-												</h3>
-												<p className="text-sm text-gray-500">
-													Draw Date: {ticket.drawDate}
-												</p>
-												<p className="mt-2 text-lg font-mono flex gap-2">
-													#{ticket.number}
-												</p>
-											</div>
-											<div className="text-right flex items-center justify-center">
-												<span
-													className={`px-3 py-1 rounded-full  ${
-														ticket.resultStatus ===
-														"pending"
-															? "bg-yellow-100 text-yellow-800"
-															: ticket.resultStatus ===
-															  "won"
-															? "bg-green-100 text-green-800"
-															: "bg-red-100 text-red-800"
-													}`}
-												>
-													{ticket.resultStatus}
-												</span>
-											</div>
-										</div>
+							<div className="space-y-4">
+								{!filteredTickets ||
+								filteredTickets.length === 0 ? (
+									<div className="text-center text-gray-600 text-sm">
+										No tickets found
 									</div>
-								))}
+								) : (
+									<div className="bg-white rounded-lg shadow">
+										{currentTickets.map((ticket: any) => (
+											<div
+												key={ticket._id}
+												onClick={() =>
+													setSelectedTicket(ticket)
+												}
+												className="p-4 border-b cursor-pointer hover:bg-gray-50"
+											>
+												<div className="flex justify-between items-center">
+													<div>
+														<h3 className="font-semibold">
+															{
+																ticket
+																	.lottery_id
+																	.name
+															}
+														</h3>
+														<p className="text-sm text-gray-500">
+															Draw Date:{" "}
+															{format(
+																parse(
+																	ticket
+																		.lottery_id
+																		.draw_date,
+																	"d-M-yyyy",
+																	new Date()
+																),
+																"dd-MM-yyyy"
+															)}
+														</p>
+														<p className="mt-2 text-lg font-mono flex gap-2">
+															#
+															{
+																ticket.ticket_number
+															}
+														</p>
+													</div>
+													<div className="text-right flex items-center justify-center">
+														<span
+															className={`px-3 py-1 rounded-full  ${
+																ticket.status ===
+																"active"
+																	? "bg-yellow-100 text-yellow-800"
+																	: ticket.resultStatus ===
+																	  "winning"
+																	? "bg-green-100 text-green-800"
+																	: "bg-red-100 text-red-800"
+															}`}
+														>
+															{ticket.status ===
+															"winning"
+																? "Won"
+																: ticket.status}
+														</span>
+													</div>
+												</div>
+											</div>
+										))}
+									</div>
+								)}
+
+								{/* Pagination Controls */}
+								<div className="flex items-center justify-between mt-6">
+									<button
+										onClick={() =>
+											setCurrentPage((prev) =>
+												Math.max(prev - 1, 1)
+											)
+										}
+										disabled={currentPage === 1}
+										className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md disabled:opacity-50"
+									>
+										Previous
+									</button>
+
+									<div className="flex items-center gap-2">
+										{Array.from(
+											{ length: totalTicketPages },
+											(_, i) => i + 1
+										).map((page) => (
+											<button
+												key={page}
+												onClick={() =>
+													setCurrentPage(page)
+												}
+												className={`px-4 py-2 text-sm font-medium rounded-md ${
+													currentPage === page
+														? "bg-blue-600 text-white"
+														: "text-gray-700 bg-white border border-gray-300"
+												}`}
+											>
+												{page}
+											</button>
+										))}
+									</div>
+
+									<button
+										onClick={() =>
+											setCurrentPage((prev) =>
+												Math.min(
+													prev + 1,
+													totalTicketPages
+												)
+											)
+										}
+										disabled={
+											currentPage === totalTicketPages
+										}
+										className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md disabled:opacity-50"
+									>
+										Next
+									</button>
+								</div>
 							</div>
 						</div>
 					) : (
@@ -175,12 +291,30 @@ export default function ResultsPage() {
 								<input
 									type="date"
 									className="border rounded-lg px-4 py-2"
+									value={dateFilter}
+									onChange={(e) =>
+										setDateFilter(e.target.value)
+									}
 								/>
-								<select className="border rounded-lg px-4 py-2">
+								<select
+									className="border rounded-lg px-4 py-2"
+									value={drawResultFilter}
+									onChange={(e) =>
+										setDrawResultFilter(e.target.value)
+									}
+								>
 									<option value="all">All Lotteries</option>
-									<option value="daily">Daily Jackpot</option>
-									<option value="weekly">
-										Weekly Special
+									<option value="lotto g 100">
+										Lotto G 100
+									</option>
+									<option value="lotto g 200">
+										Lotto G 200
+									</option>
+									<option value="lotto g 300">
+										Lotto G 300
+									</option>
+									<option value="lotto g 500">
+										Lotto G 500
 									</option>
 								</select>
 							</div>
@@ -188,47 +322,130 @@ export default function ResultsPage() {
 							{/* Results List */}
 							<div className="bg-white rounded-lg shadow">
 								{/* Map through draw results */}
-								<div className="p-4 border-b">
-									<div className="space-y-2">
-										<div className="flex justify-between">
-											<h3 className="font-semibold">
-												Daily Jackpot
-											</h3>
-											<p className="text-gray-500">
-												{"24-12-2024"}
-											</p>
-										</div>
-										<div className="flex gap-2">
-											{[1, 2, 3, 4, 5].map((num) => (
-												<span
-													key={num}
-													className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold"
-												>
-													{num}
-												</span>
-											))}
-										</div>
-										<div className="mt-4">
-											<h4 className="font-medium">
-												Prize Tiers
-											</h4>
-											<div className="mt-2 space-y-2">
-												<div className="flex justify-between text-sm">
-													<span>Match 5</span>
-													<span>
-														₹1,000,000 (2 winners)
-													</span>
-												</div>
-												<div className="flex justify-between text-sm">
-													<span>Match 4</span>
-													<span>
-														₹10,000 (15 winners)
-													</span>
+								{currentDrawResults.map((result) => (
+									<div
+										className="p-4 border-b cursor-pointer hover:bg-gray-50"
+										key={result.id}
+										onClick={() =>
+											router.push(
+												`/draw/details?id=${result.id}`
+											)
+										}
+									>
+										<div className="space-y-2">
+											<div className="flex justify-between">
+												<h3 className="font-semibold">
+													{result.lotteryName}
+												</h3>
+												<p className="text-gray-500">
+													{format(
+														parse(
+															result.drawDate,
+															"d-M-yyyy",
+															new Date()
+														),
+														"dd-MM-yyyy"
+													)}
+												</p>
+											</div>
+											<div className="flex gap-2">
+												{result.winningNumbers
+													.slice(0, 5)
+													.map((num) => (
+														<span
+															key={num}
+															className="w-max h-10 rounded-full px-2 py-1 bg-blue-100 text-blue-600 flex items-center justify-center font-semibold text-sm"
+														>
+															{num}
+														</span>
+													))}
+											</div>
+											<div className="mt-4">
+												<h4 className="font-medium">
+													Prize Tiers
+												</h4>
+												<div className="mt-2 space-y-2">
+													{result.prizeTiers
+														.slice(0, 2)
+														.map((prize) => (
+															<div
+																className="flex justify-between text-sm"
+																key={prize.tier}
+															>
+																<span>
+																	{prize.tier}
+																</span>
+																<span>
+																	₹
+																	{
+																		prize.amount
+																	}{" "}
+																	(
+																	{
+																		prize
+																			.winners
+																			.length
+																	}{" "}
+																	winners)
+																</span>
+															</div>
+														))}
 												</div>
 											</div>
 										</div>
 									</div>
+								))}
+							</div>
+
+							{/* Pagination Controls */}
+							<div className="flex items-center justify-between mt-6">
+								<button
+									onClick={() =>
+										setCurrentPage((prev) =>
+											Math.max(prev - 1, 1)
+										)
+									}
+									disabled={currentPage === 1}
+									className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md disabled:opacity-50"
+								>
+									Previous
+								</button>
+
+								<div className="flex items-center gap-2">
+									{Array.from(
+										{ length: totalDrawResultPages },
+										(_, i) => i + 1
+									).map((page) => (
+										<button
+											key={page}
+											onClick={() => setCurrentPage(page)}
+											className={`px-4 py-2 text-sm font-medium rounded-md ${
+												currentPage === page
+													? "bg-blue-600 text-white"
+													: "text-gray-700 bg-white border border-gray-300"
+											}`}
+										>
+											{page}
+										</button>
+									))}
 								</div>
+
+								<button
+									onClick={() =>
+										setCurrentPage((prev) =>
+											Math.min(
+												prev + 1,
+												totalDrawResultPages
+											)
+										)
+									}
+									disabled={
+										currentPage === totalDrawResultPages
+									}
+									className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md disabled:opacity-50"
+								>
+									Next
+								</button>
 							</div>
 						</div>
 					)}

@@ -1,26 +1,49 @@
 "use client";
 
 import LotteryCard from "@/components/TicketCard";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
-import { DUMMY_LOTTERIES } from "@/utils/data/lotteryData";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { fetchAllLotteries } from "@/redux/slices/lotterySlice";
+import { useSearchParams } from "next/navigation";
 
 export default function LotteriesPage(): React.ReactElement {
-	const [selectedCategory, setSelectedCategory] = useState("All");
+	const [selectedCategory, setSelectedCategory] = useState("all");
 	const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 	const [searchQuery, setSearchQuery] = useState("");
+	const dispatch = useDispatch<AppDispatch>();
+
+	const { lotteries } = useSelector(
+		(state: RootState) => state.lottery
+	) as any;
 
 	const [currentPage, setCurrentPage] = useState(1);
 
+	const query = useSearchParams();
+	const affiliate_id = query.get("affiliate_id");
+
 	const itemsPerPage = 6;
 
+	useEffect(() => {
+		dispatch(fetchAllLotteries())
+			.unwrap()
+			.then((data) => {
+				console.log("Lotteries fetched successfully:", data);
+			})
+			.catch((error) => {
+				console.error("Failed to fetch lotteries:", error);
+			});
+	}, [dispatch]);
+
 	// Filter Logic
-	const filteredLotteries = DUMMY_LOTTERIES.filter((lottery) => {
+	const filteredLotteries = lotteries.filter((lottery: any) => {
 		const categoryMatch =
-			selectedCategory === "All" || lottery.category === selectedCategory;
+			selectedCategory === "all" ||
+			lottery.category.toLowerCase() === selectedCategory;
 		const priceMatch =
-			lottery.ticketPrice >= priceRange[0] &&
-			lottery.ticketPrice <= priceRange[1];
+			lottery.ticket_price >= priceRange[0] &&
+			lottery.ticket_price <= priceRange[1];
 		const searchMatch = lottery.name
 			.toLowerCase()
 			.includes(searchQuery.toLowerCase());
@@ -67,11 +90,11 @@ export default function LotteriesPage(): React.ReactElement {
 										setSelectedCategory(e.target.value)
 									}
 								>
-									<option value="All">All Categories</option>
-									<option value="Daily">Daily</option>
-									<option value="Weekly">Weekly</option>
-									<option value="Monthly">Monthly</option>
-									<option value="Special">Special</option>
+									<option value="all">All Categories</option>
+									<option value="daily">Daily</option>
+									<option value="weekly">Weekly</option>
+									<option value="monthly">Monthly</option>
+									<option value="special">Special</option>
 								</select>
 							</div>
 
@@ -127,12 +150,15 @@ export default function LotteriesPage(): React.ReactElement {
 									</div>
 								) : (
 									<div className="grid grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
-										{paginatedLotteries.map((lottery) => (
-											<LotteryCard
-												lotteryData={lottery}
-												key={lottery.id}
-											/>
-										))}
+										{paginatedLotteries?.map(
+											(lottery: any) => (
+												<LotteryCard
+													lotteryData={lottery}
+													affiliate_id={affiliate_id}
+													key={lottery._id}
+												/>
+											)
+										)}
 									</div>
 								)}
 							</>
