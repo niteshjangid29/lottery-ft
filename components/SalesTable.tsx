@@ -1,26 +1,23 @@
 "use client";
 
 import { format } from "date-fns";
-
-// import { useState } from "react";
-// import { format } from 'date-fns';
-
-// interface Sale {
-// 	id: string;
-// 	customerName: string;
-// 	amount: number;
-// 	commission: number;
-// 	status: "PENDING" | "PROCESSED";
-// 	createdAt: string;
-// }
+import { useMemo, useState } from "react";
 
 interface SalesTableProps {
   sales: any[];
 }
 
 const SalesTable = ({ sales }: SalesTableProps) => {
-  // const [sortBy, setSortBy] = useState("");
-  // const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [page, setPage] = useState(1);
+
+  const itemsPerPage = 10;
+
+  // Pagination Logic
+  const totalPages = Math.ceil(sales.length / itemsPerPage);
+  const paginatedSales = useMemo(() => {
+    const startIndex = (page - 1) * itemsPerPage;
+    return sales.slice(startIndex, startIndex + itemsPerPage);
+  }, [page, sales]);
 
   return (
     <div className="bg-white rounded-lg shadow">
@@ -47,7 +44,7 @@ const SalesTable = ({ sales }: SalesTableProps) => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {/* Map through sales data */}
-            {sales.map((sale: any) => (
+            {paginatedSales.map((sale: any) => (
               <tr key={sale._id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {format(sale.createdAt, "dd-MM-yyyy")}
@@ -76,6 +73,41 @@ const SalesTable = ({ sales }: SalesTableProps) => {
             ))}
           </tbody>
         </table>
+
+        {/* Pagination controls */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex justify-center">
+            <nav className="flex items-center gap-2">
+              <button
+                className="px-3 py-1 border rounded"
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  className={`px-3 py-1 rounded ${
+                    page === i + 1 ? "bg-blue-500 text-white" : "border"
+                  }`}
+                  onClick={() => setPage(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                className="px-3 py-1 border rounded"
+                onClick={() =>
+                  setPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={page === totalPages}
+              >
+                Next
+              </button>
+            </nav>
+          </div>
+        )}
       </div>
     </div>
   );
