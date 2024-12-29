@@ -59,6 +59,7 @@ function SignupPage() {
 							email: formData.email,
 							phone: formData.phone,
 							otp: formData.otp,
+							countryCode: formData.countryCode,
 					  }
 					: {
 							name: formData.name,
@@ -66,6 +67,7 @@ function SignupPage() {
 							brandName: formData.brandName,
 							phone: formData.phone,
 							otp: formData.otp,
+							countryCode: formData.countryCode,
 					  };
 
 			const response = await axios.post(
