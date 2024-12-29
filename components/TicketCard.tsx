@@ -15,7 +15,7 @@ const LotteryCard: React.FC<LotteryCardProps> = ({
 	return (
 		<div>
 			<div className="flex flex-col justify-center gap-2 items-center bg-[#526799] p-2 md:p-4 rounded-t-xl w-[150px] h-auto md:w-[230px]">
-				<p className="text-white text-xl font-semibold border-b w-full border-gray-200">
+				<p className="text-white text-xl font-semibold border-b w-full text-center border-gray-200">
 					{lotteryData.name}
 				</p>
 				<div className="flex flex-col items-center h-3/4">
