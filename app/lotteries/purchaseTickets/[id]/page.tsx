@@ -283,7 +283,8 @@ function PurchaseTicketsContent() {
 
 		if (balance < totalPrice) {
 			toast.error("Insufficient balance");
-			router.push("/credit");
+			router.push(`/credit/?affiliate_id=${retailer?.uniqueId}`);
+			return;
 		}
 
 		const transaction = await dispatch(

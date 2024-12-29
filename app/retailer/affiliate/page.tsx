@@ -55,10 +55,12 @@ function AffiliatePage() {
 			);
 			toast.success("Payments processed successfully");
 			dispatch(fetchRetailerDetails());
+			return true;
 		} catch (error) {
 			toast.error("Failed to process payments");
 			console.error("Failed to process payments:", error);
 			setLoading(false);
+			return false;
 		}
 	};
 

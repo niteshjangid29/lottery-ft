@@ -19,7 +19,7 @@ import { format } from "date-fns";
 
 interface TransactionListProps {
 	transactions: any[];
-	onProcessPayment: (transactionIds: string[]) => void;
+	onProcessPayment: (transactionIds: string[]) => Promise<boolean>;
 }
 
 const TransactionList: React.FC<TransactionListProps> = ({
@@ -48,6 +48,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
 		);
 	};
 
+	const handleProcessClick = async () => {
+		const success = await onProcessPayment(selectedTransactions);
+		if (success !== undefined && success) {
+			setSelectedTransactions([]); // Reset selection on success
+		}
+	};
+
 	const totalCommission = React.useMemo(
 		() =>
 			transactions
@@ -61,7 +68,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
 			<div className="p-4 border-b">
 				<div className="flex items-center justify-end">
 					<button
-						onClick={() => onProcessPayment(selectedTransactions)}
+						onClick={handleProcessClick}
 						disabled={selectedTransactions.length === 0}
 						className={`px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-500`}
 					>
@@ -109,51 +116,65 @@ const TransactionList: React.FC<TransactionListProps> = ({
 						</tr>
 					</thead>
 					<tbody className="bg-white divide-y divide-gray-200">
-						{transactions.map((transaction) => (
-							<tr key={transaction._id}>
-								<td className="px-6 py-4">
-									{transaction.status === "pending" && (
-										<input
-											type="checkbox"
-											checked={selectedTransactions.includes(
-												transaction._id
-											)}
-											onChange={() =>
-												handleSelect(transaction._id)
-											}
-										/>
-									)}
-								</td>
-								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-									{format(
-										new Date(transaction.createdAt),
-										"MMM d, yyyy"
-									)}
-								</td>
-								<td className="px-6 py-4">
-									<div className="text-sm font-medium capitalize text-gray-900">
-										{transaction.customerId.name}
-									</div>
-								</td>
-								<td className="px-6 py-4 whitespace-nowrap">
-									₹{transaction.amount.toFixed(2)}
-								</td>
-								<td className="px-6 py-4 whitespace-nowrap">
-									₹{transaction.commission.toFixed(2)}
-								</td>
-								<td className="px-6 py-4 whitespace-nowrap">
-									<span
-										className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-											transaction.status === "processed"
-												? "bg-green-100 text-green-800"
-												: "bg-yellow-100 text-yellow-800"
-										}`}
-									>
-										{transaction.status}
-									</span>
+						{transactions.length === 0 ? (
+							<tr>
+								<td
+									colSpan={6}
+									className="px-6 py-4 text-center"
+								>
+									No transactions found
 								</td>
 							</tr>
-						))}
+						) : (
+							transactions.map((transaction) => (
+								<tr key={transaction._id}>
+									<td className="px-6 py-4">
+										{transaction.status === "pending" && (
+											<input
+												type="checkbox"
+												checked={selectedTransactions.includes(
+													transaction._id
+												)}
+												onChange={() =>
+													handleSelect(
+														transaction._id
+													)
+												}
+											/>
+										)}
+									</td>
+									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+										{format(
+											new Date(transaction.createdAt),
+											"MMM d, yyyy"
+										)}
+									</td>
+									<td className="px-6 py-4">
+										<div className="text-sm font-medium capitalize text-gray-900">
+											{transaction.customerId.name}
+										</div>
+									</td>
+									<td className="px-6 py-4 whitespace-nowrap">
+										₹{transaction.amount.toFixed(2)}
+									</td>
+									<td className="px-6 py-4 whitespace-nowrap">
+										₹{transaction.commission.toFixed(2)}
+									</td>
+									<td className="px-6 py-4 whitespace-nowrap">
+										<span
+											className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+												transaction.status ===
+												"processed"
+													? "bg-green-100 text-green-800"
+													: "bg-yellow-100 text-yellow-800"
+											}`}
+										>
+											{transaction.status}
+										</span>
+									</td>
+								</tr>
+							))
+						)}
 					</tbody>
 				</table>
 			</div>

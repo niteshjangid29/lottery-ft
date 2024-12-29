@@ -10,7 +10,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchAllLotteries } from "@/redux/slices/lotterySlice";
 
-const CardSlider: React.FC = () => {
+interface CardSliderProps {
+	affiliate_id?: string | null;
+}
+
+const CardSlider: React.FC<CardSliderProps> = ({ affiliate_id }) => {
 	const settings = {
 		dots: true,
 		className: "center",
@@ -51,7 +55,11 @@ const CardSlider: React.FC = () => {
 		<div className="mb-10">
 			<Slider {...settings}>
 				{lotteries?.slice(0, 4).map((lottery: any) => (
-					<LotteryCard key={lottery._id} lotteryData={lottery} />
+					<LotteryCard
+						key={lottery._id}
+						lotteryData={lottery}
+						affiliate_id={affiliate_id}
+					/>
 				))}
 			</Slider>
 		</div>

@@ -25,7 +25,9 @@ export default function ResultsPage() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10;
 
-	const { authRetailer } = useSelector((state: RootState) => state.retailer);
+	const { profile: retailer, authRetailer } = useSelector(
+		(state: RootState) => state.retailer
+	);
 
 	const router = useRouter();
 
@@ -348,7 +350,7 @@ export default function ResultsPage() {
 										onClick={() => {
 											// setSelectedDrawResult(result);
 											router.push(
-												`/draw/details?id=${result.id}`
+												`/draw/details?id=${result.id}&affiliate_id=${retailer?.uniqueId}`
 											);
 										}}
 									>

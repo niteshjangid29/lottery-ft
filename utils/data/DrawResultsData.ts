@@ -96,7 +96,7 @@ export const DRAW_RESULTS_DATA: DrawResult[] = [
 		id: "6770a07e24dd8dc25456263e",
 		lotteryName: "Rakhi Special",
 		drawDate: "21-12-2024",
-		winningNumbers: [89743, 34323, 76423],
+		winningNumbers: [89743, 34323, 76423, 56616],
 		prizeTiers: [
 			{
 				tier: "1st",
@@ -125,7 +125,7 @@ export const DRAW_RESULTS_DATA: DrawResult[] = [
 			},
 			{
 				tier: "6th",
-				winners: [76423],
+				winners: [76423, 56616],
 				amount: "5,000",
 			},
 			{

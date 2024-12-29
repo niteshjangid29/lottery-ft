@@ -151,6 +151,7 @@ const userSlice = createSlice({
 			state.userDetails = null;
 			localStorage.removeItem("userDetails");
 			localStorage.removeItem("userToken");
+			localStorage.removeItem("cartTickets");
 		},
 		updateUser(state, action: PayloadAction<UserDetails>) {
 			if (state.userDetails) {

@@ -15,6 +15,7 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { fetchAllLotteries } from "@/redux/slices/lotterySlice";
 // import { fetchCityFromCoordinates } from "@/redux/slices/locationSlice";
 import { setLoading } from "@/redux/slices/userSlice";
+// import { useParams, useSearchParams } from "next/navigation";
 
 const stats = [
 	{ label: "Active Players", value: "50,000+", icon: FaUsers },
@@ -36,6 +37,9 @@ function HomePage({ retailer }: any) {
 	const { authUser, loading } = useSelector((state: RootState) => state.user);
 	const { authRetailer } = useSelector((state: RootState) => state.retailer);
 	// const { location } = useSelector((state: RootState) => state.location);
+
+	// const query = useSearchParams();
+	// console.log("query", query);
 
 	useEffect(() => {
 		dispatch(setLoading(true));
@@ -179,7 +183,7 @@ function HomePage({ retailer }: any) {
 						Choose from our selection of exciting games
 					</p>
 				</div>
-				<CardSlider />
+				<CardSlider affiliate_id={retailer?.uniqueId} />
 				{/* <CardCarousel /> */}
 			</div>
 

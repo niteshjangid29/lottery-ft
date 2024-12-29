@@ -100,6 +100,15 @@ export const TICKETS_DATA: Ticket[] = [
 		purchasedDate: "10-12-2024",
 	},
 	{
+		id: "19",
+		lotteryName: "Rakhi Special",
+		number: "56616",
+		drawDate: "21-12-2024",
+		resultStatus: "won",
+		prizeAmount: 5000,
+		purchasedDate: "18-12-2024",
+	},
+	{
 		id: "12",
 		lotteryName: "Rakhi Special",
 		number: "89743",
