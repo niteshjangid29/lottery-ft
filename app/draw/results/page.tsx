@@ -44,7 +44,7 @@ export default function ResultsPage() {
 	// Filter logic
 	const filteredTickets = userTickets?.filter((ticket) => {
 		const filterMatch =
-			ticketFilter === "all" || ticket.resultStatus === ticketFilter;
+			ticketFilter === "all" || ticket.status === ticketFilter;
 		const searchMatch =
 			ticket.ticket_number.toString().includes(searchQuery) ||
 			ticket.lotteryName.includes(searchQuery);
@@ -177,9 +177,8 @@ export default function ResultsPage() {
 									}
 								>
 									<option value="all">All Status</option>
-									<option value="pending">Pending</option>
-									<option value="won">Won</option>
-									<option value="lost">Lost</option>
+									<option value="active">Pending</option>
+									<option value="winning">Won</option>
 								</select>
 							</div>
 							{/* Tickets List */}
@@ -234,7 +233,7 @@ export default function ResultsPage() {
 																ticket.status ===
 																"active"
 																	? "bg-yellow-100 text-yellow-800"
-																	: ticket.resultStatus ===
+																	: ticket.status ===
 																	  "winning"
 																	? "bg-green-100 text-green-800"
 																	: "bg-red-100 text-red-800"
@@ -326,17 +325,15 @@ export default function ResultsPage() {
 									}
 								>
 									<option value="all">All Lotteries</option>
-									<option value="lotto g 100">
-										Lotto G 100
+									<option value="dear 100">Dear 100</option>
+									<option value="pb lottery">
+										PB Lottery
 									</option>
-									<option value="lotto g 200">
-										Lotto G 200
+									<option value="rakhi special">
+										Rakhi Special
 									</option>
-									<option value="lotto g 300">
-										Lotto G 300
-									</option>
-									<option value="lotto g 500">
-										Lotto G 500
+									<option value="dear special">
+										Dear Special
 									</option>
 								</select>
 							</div>
@@ -348,11 +345,12 @@ export default function ResultsPage() {
 									<div
 										className="p-4 border-b cursor-pointer hover:bg-gray-50"
 										key={result.id}
-										onClick={() =>
+										onClick={() => {
+											// setSelectedDrawResult(result);
 											router.push(
 												`/draw/details?id=${result.id}`
-											)
-										}
+											);
+										}}
 									>
 										<div className="space-y-2">
 											<div className="flex justify-between">
