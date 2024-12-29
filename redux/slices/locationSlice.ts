@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { setLoading } from "./userSlice";
 
 export interface LocationState {
 	location: {
@@ -26,6 +27,7 @@ export const fetchCityFromCoordinates = createAsyncThunk(
 		latitude: number;
 		longitude: number;
 	}) => {
+		setLoading(true);
 		try {
 			const apiKey = process.env.NEXT_PUBLIC_OPENCAGEDATA_API_KEY;
 			if (!apiKey) {
@@ -37,9 +39,10 @@ export const fetchCityFromCoordinates = createAsyncThunk(
 			);
 
 			console.log("response", response);
-
+			setLoading(false);
 			return response.data.results[0].components;
 		} catch (err) {
+			setLoading(false);
 			console.log("Failed to fetch location from coordinates.");
 		}
 	}

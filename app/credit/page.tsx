@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { FaWallet, FaHistory } from "react-icons/fa";
 import { recordTransaction } from "@/redux/slices/userSlice";
+import toast from "react-hot-toast";
 
 const CreditPage = () => {
 	const dispatch = useDispatch<AppDispatch>();
@@ -60,6 +61,11 @@ const CreditPage = () => {
 		const fundAmount = parseFloat(amount);
 		if (isNaN(fundAmount) || fundAmount <= 0) {
 			setError("Please enter a valid amount");
+			return;
+		}
+		if (!authUser) {
+			toast.error("Please login to add funds");
+			router.push("/login");
 			return;
 		}
 		dispatch(

@@ -45,10 +45,12 @@ const CardSlider: React.FC = () => {
 		dispatch(fetchAllLotteries());
 	}, [dispatch]);
 
+	console.log("lotteries", lotteries);
+
 	return (
 		<div className="mb-10">
 			<Slider {...settings}>
-				{lotteries.map((lottery: any) => (
+				{lotteries?.slice(0, 4).map((lottery: any) => (
 					<LotteryCard key={lottery._id} lotteryData={lottery} />
 				))}
 			</Slider>

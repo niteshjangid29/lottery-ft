@@ -80,6 +80,7 @@ export const purchaseTicket = createAsyncThunk(
 export const getUserTickets = createAsyncThunk(
 	"user/getPurchasedTickets",
 	async () => {
+		setLoading(true);
 		try {
 			const response = await axios.get(
 				`${process.env.NEXT_PUBLIC_API_URL}/user/tickets`,
@@ -91,10 +92,13 @@ export const getUserTickets = createAsyncThunk(
 					},
 				}
 			);
-
+			setLoading(false);
 			return response.data;
 		} catch (error: any) {
-			return error.response?.data || "Failed to fetch purchased tickets";
+			setLoading(false);
+			console.log(
+				error.response?.data || "Failed to fetch purchased tickets"
+			);
 		}
 	}
 );
@@ -102,13 +106,16 @@ export const getUserTickets = createAsyncThunk(
 export const fetchTicketsByLotteryId = createAsyncThunk(
 	"user/fetchTicketsByLotteryId",
 	async (lotteryId: string | string[]) => {
+		setLoading(true);
 		try {
 			const response = await axios.get(
 				`${process.env.NEXT_PUBLIC_API_URL}/ticket/lottery/${lotteryId}`
 			);
 
+			setLoading(false);
 			return response.data;
 		} catch (error: any) {
+			setLoading(false);
 			return error.response?.data || "Failed to fetch tickets";
 		}
 	}
@@ -178,6 +185,9 @@ const userSlice = createSlice({
 			state.cartTickets = [];
 			localStorage.removeItem("cartTickets");
 		},
+		setLoading(state, action: PayloadAction<boolean>) {
+			state.loading = action.payload;
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -185,14 +195,17 @@ const userSlice = createSlice({
 				state.loading = true;
 			})
 			.addCase(getUserTickets.fulfilled, (state, action) => {
-				state.userTickets = [...action.payload];
+				state.userTickets = action.payload;
 			})
 			.addCase(getUserTickets.rejected, (state) => {
 				state.userTickets = [];
 				state.loading = false;
 			})
+			.addCase(fetchTicketsByLotteryId.pending, (state) => {
+				state.loading = true;
+			})
 			.addCase(fetchTicketsByLotteryId.fulfilled, (state, action) => {
-				state.purchasedTickets = [...action.payload];
+				state.purchasedTickets = action.payload;
 			})
 			.addCase(fetchTicketsByLotteryId.rejected, (state) => {
 				state.purchasedTickets = [];
@@ -208,5 +221,6 @@ export const {
 	addToCart,
 	removeFromCart,
 	clearCart,
+	setLoading,
 } = userSlice.actions;
 export default userSlice.reducer;
