@@ -77,12 +77,16 @@ function SignupPage() {
 				// Handle retailer signup
 				dispatch(setProfile(response.data.retailer));
 				localStorage.setItem("retailerToken", response.data.token);
-				router.push("/retailer/dashboard");
+				router.push(
+					`/retailer/dashboard/?retailer_id=${response.data.retailer._id}`
+				);
+				router.refresh();
 			} else {
 				// Handle user signup
 				dispatch(login(response.data.user));
 				localStorage.setItem("userToken", response.data.token);
 				router.push("/");
+				router.refresh();
 			}
 
 			toast.success("Registration successful!");

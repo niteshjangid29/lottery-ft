@@ -60,11 +60,13 @@ function LoginPage() {
 				router.push(
 					`/retailer/dashboard/?retailer_id=${response.data.retailer._id}`
 				);
+				router.refresh();
 			} else {
 				// Handle user login
 				dispatch(login(response.data.user));
 				localStorage.setItem("userToken", response.data.token);
 				router.push("/");
+				router.refresh();
 			}
 
 			toast.success("Login successful!");
