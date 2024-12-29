@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { FaCopy } from "react-icons/fa";
 import TransactionList from "../../../components/retailer/TransactionList";
-import axios from "axios";
+// import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import {
@@ -13,25 +13,9 @@ import {
 	processAffiliatePayment,
 } from "@/redux/slices/retailerSlice";
 
-interface TransactionStats {
-	total: {
-		totalCommission: number;
-		totalTransactions: number;
-		totalAmount: number;
-	};
-	pending: {
-		pendingCommission: number;
-		pendingTransactions: number;
-	};
-	processed: {
-		processedCommission: number;
-		processedTransactions: number;
-	};
-}
-
 function AffiliatePage() {
 	const [affiliateLink, setAffiliateLink] = useState<string>("");
-	const [transactions, setTransactions] = useState([]);
+	// const [transactions, setTransactions] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const {
 		authRetailer,
@@ -73,6 +57,7 @@ function AffiliatePage() {
 			dispatch(fetchRetailerDetails());
 		} catch (error) {
 			toast.error("Failed to process payments");
+			console.error("Failed to process payments:", error);
 			setLoading(false);
 		}
 	};
@@ -83,6 +68,7 @@ function AffiliatePage() {
 			toast.success("Link copied to clipboard!");
 		} catch (error) {
 			toast.error("Failed to copy link");
+			console.error("Failed to copy link:", error);
 		}
 	};
 

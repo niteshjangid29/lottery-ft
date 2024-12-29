@@ -10,7 +10,7 @@ import {
 	setLoading,
 } from "../../redux/slices/retailerSlice";
 import toast from "react-hot-toast";
-import SalesTable from "../SalesTable";
+// import SalesTable from "../SalesTable";
 import TransactionList from "./TransactionList";
 
 const RetailerDashboard: React.FC = () => {
@@ -53,6 +53,7 @@ const RetailerDashboard: React.FC = () => {
 			dispatch(fetchRetailerDetails());
 		} catch (error) {
 			toast.error("Failed to process payments");
+			console.error("Failed to process payments:", error);
 			setLoading(false);
 		}
 	};
