@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Lotto G",
+	title: "PB Lottery",
 	description: "Online Lottery Platform",
 };
 
