@@ -13,7 +13,7 @@ import LotteryCard from "../TicketCard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchAllLotteries } from "@/redux/slices/lotterySlice";
-import { fetchCityFromCoordinates } from "@/redux/slices/locationSlice";
+// import { fetchCityFromCoordinates } from "@/redux/slices/locationSlice";
 import { setLoading } from "@/redux/slices/userSlice";
 
 const stats = [
@@ -26,7 +26,7 @@ const stats = [
 	{ label: "Winners", value: "1000+", icon: FaTrophy },
 ];
 
-const allowedStates = ["Maharashtra", "Punjab", "Uttar Pradesh"];
+// const allowedStates = ["Maharashtra", "Punjab", "Uttar Pradesh"];
 
 function HomePage({ retailer }: any) {
 	const { lotteries } = useSelector(
@@ -35,38 +35,38 @@ function HomePage({ retailer }: any) {
 	const dispatch = useDispatch<AppDispatch>();
 	const { authUser, loading } = useSelector((state: RootState) => state.user);
 	const { authRetailer } = useSelector((state: RootState) => state.retailer);
-	const { location } = useSelector((state: RootState) => state.location);
+	// const { location } = useSelector((state: RootState) => state.location);
 
 	useEffect(() => {
 		dispatch(setLoading(true));
 		try {
-			const getLocation = async () => {
-				if (
-					typeof window !== "undefined" &&
-					"geolocation" in navigator
-				) {
-					navigator.geolocation.getCurrentPosition(
-						(position) => {
-							const { latitude, longitude } = position.coords;
-							dispatch(
-								fetchCityFromCoordinates({
-									latitude,
-									longitude,
-								})
-							);
-						},
-						() => {
-							console.log(
-								"Unable to fetch your location. Please enable location access."
-							);
-						}
-					);
-				} else {
-					console.log(
-						"Geolocation is not supported by your browser."
-					);
-				}
-			};
+			// const getLocation = async () => {
+			// 	if (
+			// 		typeof window !== "undefined" &&
+			// 		"geolocation" in navigator
+			// 	) {
+			// 		navigator.geolocation.getCurrentPosition(
+			// 			(position) => {
+			// 				const { latitude, longitude } = position.coords;
+			// 				dispatch(
+			// 					fetchCityFromCoordinates({
+			// 						latitude,
+			// 						longitude,
+			// 					})
+			// 				);
+			// 			},
+			// 			() => {
+			// 				console.log(
+			// 					"Unable to fetch your location. Please enable location access."
+			// 				);
+			// 			}
+			// 		);
+			// 	} else {
+			// 		console.log(
+			// 			"Geolocation is not supported by your browser."
+			// 		);
+			// 	}
+			// };
 
 			// getLocation();
 			dispatch(fetchAllLotteries());
