@@ -54,6 +54,7 @@ const NumberPicker: React.FC<NumberPickerProps> = ({
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newValue = e.target.value.slice(-1);
+		console.log("newValue index - ", index, " - ", newValue);
 		if (/^[0-9]$/.test(newValue) || newValue === "") {
 			onChange(index, newValue);
 			if (newValue) {
@@ -74,6 +75,7 @@ const NumberPicker: React.FC<NumberPickerProps> = ({
 							: String(Number(value) + 1);
 					onChange(index, newValue);
 					inputRef.current?.focus();
+					console.log(`newValue for index ${index} - ${newValue}`);
 				}}
 				className="p-1 rounded-t"
 			>
@@ -103,6 +105,7 @@ const NumberPicker: React.FC<NumberPickerProps> = ({
 							: String(Number(value) - 1);
 					onChange(index, newValue);
 					inputRef.current?.focus();
+					console.log(`newValue for index ${index} - ${newValue}`);
 				}}
 				className="p-1 rounded-b"
 			>

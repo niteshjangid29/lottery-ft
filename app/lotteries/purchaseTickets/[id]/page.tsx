@@ -66,6 +66,7 @@ function PurchaseTicketsContent() {
 				.unwrap()
 				.then((data) => {
 					setLotteryDetails(data);
+					setNumbers(Array(data.digit_length).fill(""));
 				})
 				.catch((error) => {
 					console.error("Failed to fetch lottery:", error);
@@ -83,9 +84,7 @@ function PurchaseTicketsContent() {
 		setSelectedTickets(cartTickets);
 	}, [dispatch, id, cartTickets]);
 
-	const [numbers, setNumbers] = useState<string[]>(
-		Array(lotteryDetails.digit_length).fill("")
-	);
+	const [numbers, setNumbers] = useState<string[]>([]);
 
 	const [suggestions, setSuggestions] = useState<string[]>([]);
 
@@ -247,6 +246,7 @@ function PurchaseTicketsContent() {
 			]);
 			setCustomNumber("");
 			setSuggestions([]);
+			setNumbers(Array(lotteryDetails.digit_length).fill(""));
 			dispatch(
 				addToCart({
 					id: Math.random().toString(),
@@ -329,6 +329,7 @@ function PurchaseTicketsContent() {
 				lottery_id: lotteryDetails._id,
 			})
 		)
+			.unwrap()
 			.then(() => {
 				console.log("purchaseTicket Success");
 				toast.success("Tickets Purchased!");
