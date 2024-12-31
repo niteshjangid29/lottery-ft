@@ -15,6 +15,7 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { fetchAllLotteries } from "@/redux/slices/lotterySlice";
 // import { fetchCityFromCoordinates } from "@/redux/slices/locationSlice";
 import { setLoading } from "@/redux/slices/userSlice";
+import { fetchStoreByUniqueId } from "@/redux/slices/retailerSlice";
 // import { useParams, useSearchParams } from "next/navigation";
 
 const stats = [
@@ -74,6 +75,7 @@ function HomePage({ retailer }: any) {
 
 			// getLocation();
 			dispatch(fetchAllLotteries());
+			dispatch(fetchStoreByUniqueId(retailer.uniqueId));
 		} catch (error) {
 			console.log(error);
 		}

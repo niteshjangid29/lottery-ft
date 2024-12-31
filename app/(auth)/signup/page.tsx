@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { setProfile } from "@/redux/slices/retailerSlice";
@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 import countryCode from "@/utils/data/countryCode.json";
 import { login } from "@/redux/slices/userSlice";
 
-function SignupPage() {
+function SignupPageContent() {
 	const [activeTab, setActiveTab] = useState<"user" | "retailer">("user");
 	const [formData, setFormData] = useState({
 		name: "",
@@ -24,11 +24,14 @@ function SignupPage() {
 	const [otpSent, setOtpSent] = useState(false);
 	const router = useRouter();
 	const dispatch = useDispatch();
+	const query = useSearchParams();
+	const affiliate_id = query.get("affiliate_id");
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		if (!otpSent) {
+			setLoading(true);
 			try {
 				await axios.post(
 					`${process.env.NEXT_PUBLIC_API_URL}/otp/sendOtp`,
@@ -43,6 +46,7 @@ function SignupPage() {
 					error.response?.data?.message || "Failed to send OTP"
 				);
 			}
+			setLoading(false);
 			return;
 		}
 
@@ -87,7 +91,7 @@ function SignupPage() {
 				// Handle user signup
 				dispatch(login(response.data.user));
 				localStorage.setItem("userToken", response.data.token);
-				router.push("/");
+				router.push(`/?affiliate_id=${affiliate_id}`);
 				router.refresh();
 			}
 
@@ -250,7 +254,7 @@ function SignupPage() {
 				<p className="mt-4 text-center text-sm text-gray-600">
 					Already have an account?{" "}
 					<Link
-						href="/login"
+						href={`/login/?affiliate_id=${affiliate_id}`}
 						className="font-medium text-blue-600 hover:text-blue-500"
 					>
 						Login
@@ -261,4 +265,10 @@ function SignupPage() {
 	);
 }
 
-export default SignupPage;
+export default function SignupPage() {
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			<SignupPageContent />
+		</Suspense>
+	);
+}

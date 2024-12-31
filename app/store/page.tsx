@@ -5,10 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import {
+	clearProfile,
 	fetchRetailerDetails,
 	fetchStoreByUniqueId,
 } from "@/redux/slices/retailerSlice";
 import HomePage from "@/components/Home/HomePage";
+import toast from "react-hot-toast";
 
 const StorePageContent: React.FC = () => {
 	const query = useSearchParams();
@@ -26,10 +28,14 @@ const StorePageContent: React.FC = () => {
 	console.log("affiliate_id", affiliate_id);
 
 	useEffect(() => {
+		dispatch(clearProfile());
+
 		if (affiliate_id === null && retailer_id === null) {
 			router.push("/");
 			return;
 		}
+
+		console.log("Inside useEffect store page");
 
 		if (!authUser) {
 			router.push(
@@ -38,17 +44,24 @@ const StorePageContent: React.FC = () => {
 			return;
 		}
 
-		if (!retailer) {
-			if (affiliate_id) {
-				dispatch(fetchStoreByUniqueId(affiliate_id))
-					.unwrap()
-					.then((data) => {
-						console.log("Store fetched successfully:", data);
-					})
-					.catch((error) => {
-						console.error("Failed to fetch store:", error);
-					});
-			}
+		// Clear existing retailer data when affiliate_id changes
+		// localStorage.removeItem("retailerProfile");
+
+		if (affiliate_id) {
+			dispatch(fetchStoreByUniqueId(affiliate_id))
+				.unwrap()
+				.then((data) => {
+					console.log("Store fetched successfully:", data);
+					// localStorage.setItem(
+					// 	"retailerProfile",
+					// 	JSON.stringify(data)
+					// );
+				})
+				.catch((error) => {
+					console.error("Failed to fetch store:", error);
+					toast.error("Failed to fetch store");
+					router.push("/");
+				});
 		}
 
 		if (retailer_id) {
@@ -61,7 +74,12 @@ const StorePageContent: React.FC = () => {
 					console.error("Failed to fetch retailer:", error);
 				});
 		}
-	}, [affiliate_id, retailer_id, retailer, router, dispatch, authUser]);
+
+		// return () => {
+		// 	// Cleanup on unmount or affiliate_id change
+		// 	localStorage.removeItem("retailerProfile");
+		// };
+	}, [affiliate_id, retailer_id, router, dispatch, authUser]);
 
 	// Apply retailer's custom styling
 	useEffect(() => {

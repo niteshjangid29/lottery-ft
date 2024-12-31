@@ -142,7 +142,7 @@ const userSlice = createSlice({
 	initialState,
 	reducers: {
 		login(state, action: PayloadAction<UserDetails>) {
-			// state.authUser = true;
+			state.authUser = true;
 			state.userDetails = action.payload;
 			localStorage.setItem("userDetails", JSON.stringify(action.payload));
 		},
@@ -152,6 +152,7 @@ const userSlice = createSlice({
 			localStorage.removeItem("userDetails");
 			localStorage.removeItem("userToken");
 			localStorage.removeItem("cartTickets");
+			localStorage.removeItem("retailerProfile");
 		},
 		updateUser(state, action: PayloadAction<UserDetails>) {
 			if (state.userDetails) {

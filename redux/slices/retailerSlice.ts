@@ -95,6 +95,7 @@ export const fetchStoreByUniqueId = createAsyncThunk(
 				`${process.env.NEXT_PUBLIC_API_URL}/retailer/store/${uniqueId}`
 			);
 
+			console.log("store data", response.data);
 			return response.data;
 		} catch (error: any) {
 			return rejectWithValue(
@@ -247,12 +248,20 @@ const retailerSlice = createSlice({
 		) => {
 			console.log("action payload - ", action.payload);
 			state.profile = action.payload;
+			state.authRetailer = true;
 			state.loading = false;
 			localStorage.setItem(
 				"retailerProfile",
 				JSON.stringify(action.payload)
 			);
 			console.log("profile set to local storage");
+		},
+
+		clearProfile: (state) => {
+			state.profile = null;
+			state.loading = false;
+			state.authRetailer = false;
+			localStorage.removeItem("retailerProfile");
 		},
 
 		updateProfile: (
@@ -375,6 +384,7 @@ const retailerSlice = createSlice({
 export const {
 	setLoading,
 	setProfile,
+	clearProfile,
 	logoutRetailer,
 	updateProfile,
 	setStats,

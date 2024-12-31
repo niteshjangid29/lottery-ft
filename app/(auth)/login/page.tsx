@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { setProfile } from "@/redux/slices/retailerSlice";
@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 import countryCode from "@/utils/data/countryCode.json";
 import { login } from "@/redux/slices/userSlice";
 
-function LoginPage() {
+function LoginPageContent() {
 	const [activeTab, setActiveTab] = useState<"user" | "retailer">("user");
 	const [formData, setFormData] = useState({
 		phone: "",
@@ -21,11 +21,14 @@ function LoginPage() {
 	const [otpSent, setOtpSent] = useState(false);
 	const router = useRouter();
 	const dispatch = useDispatch();
+	const query = useSearchParams();
+	const affiliate_id = query.get("affiliate_id");
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		if (!otpSent) {
+			setLoading(true);
 			try {
 				await axios.post(
 					`${process.env.NEXT_PUBLIC_API_URL}/otp/sendOtp`,
@@ -40,6 +43,7 @@ function LoginPage() {
 					error.response?.data?.message || "Failed to send OTP"
 				);
 			}
+			setLoading(false);
 			return;
 		}
 
@@ -65,7 +69,7 @@ function LoginPage() {
 				// Handle user login
 				dispatch(login(response.data.user));
 				localStorage.setItem("userToken", response.data.token);
-				router.push("/");
+				router.push(`/?affiliate_id=${affiliate_id}`);
 				router.refresh();
 			}
 
@@ -195,7 +199,7 @@ function LoginPage() {
 				<p className="mt-4 text-center text-sm text-gray-600">
 					{"Don't have an account?"}
 					<Link
-						href="/signup"
+						href={`/signup/?affiliate_id=${affiliate_id}`}
 						className="font-medium text-blue-600 hover:text-blue-500"
 					>
 						Sign up
@@ -206,4 +210,10 @@ function LoginPage() {
 	);
 }
 
-export default LoginPage;
+export default function LoginPage() {
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			<LoginPageContent />
+		</Suspense>
+	);
+}
