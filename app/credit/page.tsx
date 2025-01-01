@@ -6,8 +6,6 @@ import { AppDispatch, RootState } from "@/redux/store";
 import {
 	getWalletBalance,
 	getWalletTransactions,
-	setBalance,
-	setTransactions,
 } from "@/redux/slices/walletSlice";
 import { useRouter } from "next/navigation";
 import { FaWallet, FaHistory } from "react-icons/fa";
