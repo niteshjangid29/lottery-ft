@@ -7,6 +7,7 @@ import {
 	getWalletBalance,
 	getWalletTransactions,
 	setBalance,
+	setTransactions,
 } from "@/redux/slices/walletSlice";
 import { useRouter } from "next/navigation";
 import { FaWallet, FaHistory } from "react-icons/fa";
@@ -79,9 +80,10 @@ const CreditPage = () => {
 			.unwrap()
 			.then((data) => {
 				console.log("Transaction added successfully:", data);
-				dispatch(setBalance(data.updatedBalance));
+				dispatch(getWalletBalance());
+				dispatch(getWalletTransactions());
 			});
-		router.refresh();
+		// router.refresh();
 		setAmount("");
 		setError("");
 	};
@@ -90,6 +92,16 @@ const CreditPage = () => {
 	const startIndex = (currentPage - 1) * itemsPerPage;
 	const endIndex = startIndex + itemsPerPage;
 	const currentTransactions = transactions?.slice(startIndex, endIndex);
+
+	const getPageRange = () => {
+		const range = [];
+		const start = Math.max(1, currentPage - 1);
+		const end = Math.min(totalPages, currentPage + 1);
+		for (let i = start; i <= end; i++) {
+			range.push(i);
+		}
+		return range;
+	};
 
 	if (authRetailer) {
 		return (
@@ -254,10 +266,24 @@ const CreditPage = () => {
 							</button>
 
 							<div className="flex items-center gap-2">
-								{Array.from(
+								{/* {Array.from(
 									{ length: totalPages },
 									(_, i) => i + 1
 								).map((page) => (
+									<button
+										key={page}
+										onClick={() => setCurrentPage(page)}
+										className={`px-4 py-2 text-sm font-medium rounded-md ${
+											currentPage === page
+												? "bg-blue-600 text-white"
+												: "text-gray-700 bg-white border border-gray-300"
+										}`}
+									>
+										{page}
+									</button>
+								))} */}
+
+								{getPageRange().map((page) => (
 									<button
 										key={page}
 										onClick={() => setCurrentPage(page)}

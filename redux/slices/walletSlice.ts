@@ -16,8 +16,8 @@ export interface Transaction {
 }
 
 const initialState: WalletState = {
-	balance: parseFloat(getFromLocalStorage("walletBalance") || "0"),
-	transactions: JSON.parse(getFromLocalStorage("walletTransactions") || "[]"),
+	balance: 0,
+	transactions: [],
 };
 
 export const getWalletBalance = createAsyncThunk(
@@ -73,6 +73,9 @@ const walletSlice = createSlice({
 		setBalance(state, action: PayloadAction<number>) {
 			state.balance = action.payload;
 		},
+		setTransactions(state, action: PayloadAction<Transaction[]>) {
+			state.transactions = action.payload;
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -94,5 +97,5 @@ const walletSlice = createSlice({
 	},
 });
 
-export const { setBalance } = walletSlice.actions;
+export const { setBalance, setTransactions } = walletSlice.actions;
 export default walletSlice.reducer;
