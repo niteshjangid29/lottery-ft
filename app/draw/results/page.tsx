@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { getUserTickets } from "@/redux/slices/userSlice";
-
+import QRCode from "@/components/QRCode";
 export default function ResultsPage() {
 	const [activeTab, setActiveTab] = useState<"tickets" | "history">(
 		"tickets"
@@ -21,7 +21,8 @@ export default function ResultsPage() {
 
 	const dispatch = useDispatch<AppDispatch>();
 	const { userTickets } = useSelector((state: RootState) => state.user);
-
+	const user= useSelector((state: RootState) => state.user);
+	console.log("user", user);
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10;
 
@@ -246,6 +247,10 @@ export default function ResultsPage() {
 																? "Won"
 																: ticket.status}
 														</span>
+														<QRCode
+															// url={`http://localhost:3000/draw/results/${ticket._id}`}
+															url={`https://www.lottog.live/draw/results/${ticket._id}`}															
+														/>
 													</div>
 												</div>
 											</div>
