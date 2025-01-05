@@ -36,7 +36,7 @@ const PlayResponsiblyPage = () => {
 						<li>Set a personal spending limit</li>
 						<li>Only spend what you can afford to lose</li>
 						<li>Take regular breaks from playing</li>
-						<li>Don't chase losses</li>
+						<li>{`Don't chase losses`}</li>
 						<li>Keep track of time and money spent</li>
 					</ul>
 				</div>

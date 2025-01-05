@@ -11,8 +11,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import {
 	getKycDetails,
-	setKycDetails,
-	setVerificationStatus,
 	updateKYC,
 } from "@/redux/slices/kycSlice";
 import { useRouter } from "next/navigation";
@@ -23,11 +21,6 @@ const EKYCPage = () => {
 
 	useEffect(() => {
 		dispatch(getKycDetails());
-		// .unwrap()
-		// .then((data) => {
-		// 	dispatch(setKycDetails(data));
-		// 	dispatch(setVerificationStatus(data.kyc.status === "approved"));
-		// });
 	}, [dispatch]);
 
 	const { isVerified, kycDetails } = useSelector(
