@@ -1,5 +1,6 @@
 "use client";
 import useClickOutside from "@/hooks/useClickOutside";
+import { resetKYC } from "@/redux/slices/kycSlice";
 import { logoutRetailer } from "@/redux/slices/retailerSlice";
 import { logout } from "@/redux/slices/userSlice";
 import { RootState } from "@/redux/store";
@@ -56,6 +57,8 @@ function NavbarContent() {
 			// Dispatch logout actions
 			if (authUser) {
 				dispatch(logout());
+				// reseting KYC at Sign out, it will be removed once we store KYC details in DB
+				dispatch(resetKYC());
 			} else if (authRetailer) {
 				dispatch(logoutRetailer());
 			}
@@ -63,7 +66,7 @@ function NavbarContent() {
 			// Reset menu and navigate
 			setDropdownOpen(false);
 			router.push("/");
-			router.refresh(); // Force refresh to clear navigation cache
+			// router.refresh(); // Force refresh to clear navigation cache
 		} catch (error) {
 			console.error("Sign out error:", error);
 		}
@@ -79,6 +82,7 @@ function NavbarContent() {
 		{ label: "Results", href: "/draw/results" },
 		{ label: "Credit", href: "/credit" },
 		{ label: "Contact-Us", href: "/support/contact_us" },
+		{ label: "eKYC", href: "/e-kyc", position: "sidebar" },
 	];
 
 	const bottomNavItems = [
@@ -185,7 +189,7 @@ function NavbarContent() {
 										<Link
 											href={`${
 												authUser
-													? "/profile"
+													? "/e-kyc/details"
 													: `/retailer/dashboard/?retailer_id=${retailer._id}`
 											}`}
 											className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

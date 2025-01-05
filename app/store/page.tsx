@@ -35,7 +35,7 @@ const StorePageContent: React.FC = () => {
 			return;
 		}
 
-		console.log("Inside useEffect store page");
+		// console.log("Inside useEffect store page");
 
 		if (!authUser) {
 			router.push(
