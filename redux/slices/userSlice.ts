@@ -71,6 +71,7 @@ export const purchaseTicket = createAsyncThunk(
 					},
 				}
 			);
+			console.log(response);
 		} catch (error: any) {
 			return error.response?.data || "Failed to purchase ticket";
 		}

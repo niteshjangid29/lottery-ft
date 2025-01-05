@@ -1,8 +1,9 @@
 "use client";
 
-import TicketDetailModal from "@/components/TicketDetailModal";
+// import TicketDetailModal from "@/components/TicketDetailModal";
 import { DRAW_RESULTS_DATA } from "@/utils/data/DrawResultsData";
-import { Ticket } from "@/utils/data/TicketsData";
+// import { Ticket } from "@/utils/data/TicketsData";
+import ReactDOM from 'react-dom/client';
 import { useEffect, useState } from "react";
 import { FaHistory, FaSearch, FaTicketAlt } from "react-icons/fa";
 import { format, parse } from "date-fns";
@@ -10,18 +11,23 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { getUserTickets } from "@/redux/slices/userSlice";
-
+// import { FaCheckCircle } from 'react-icons/fa';
+import QRCode from "@/components/QRCode";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { FaDownload } from 'react-icons/fa6';
 export default function ResultsPage() {
 	const [activeTab, setActiveTab] = useState<"tickets" | "history">(
 		"tickets"
 	);
-	const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+	// const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 	// const [selectedDrawResult, setSelectedDrawResult] =
 	// 	useState<DrawResult | null>(null);
 
 	const dispatch = useDispatch<AppDispatch>();
 	const { userTickets } = useSelector((state: RootState) => state.user);
-
+	const {userDetails}= useSelector((state: RootState) => state.user);
+	// console.log("user", user);
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10;
 
@@ -70,7 +76,140 @@ export default function ResultsPage() {
 		return filterMatch && dateMatch;
 	});
 
-	// Calculate pagination for tickets
+	
+	const downloadPDF = async (ticket: any, userDetails: any, link: string) => {
+		// Dynamically create a container for the certificate
+		const certificate = document.createElement('div');
+		certificate.style.width = '595px'; // A4 width in px at 72 DPI
+		certificate.style.padding = '20px';
+		certificate.style.background = '#fff';
+		certificate.style.fontFamily = 'Arial, sans-serif';
+		certificate.style.boxSizing = 'border-box';
+		certificate.style.position = 'absolute';
+		certificate.style.top = '-9999px'; 
+		document.body.appendChild(certificate);
+	  
+		const root = ReactDOM.createRoot(certificate);
+	  
+		root.render(
+			<div className="bg-gray-100 py-10 px-4 flex justify-center items-center min-h-screen">
+			<div className="w-full max-w-3xl bg-white border shadow-lg rounded-xl p-6 relative">
+			  {/* Header */}
+			  <div className="text-center mb-6">
+				<h1 className="text-xl font-bold text-gray-700">
+				  Ministry of Ticket Authorization
+				</h1>
+				<p className="text-sm text-gray-500">
+				  Provisional Certificate for Ticket Purchase
+				</p>
+			  </div>
+	  
+			  {/* Beneficiary Details */}
+			  <div className="mb-6">
+				<h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
+				  Beneficiary Details
+				</h2>
+				<div className="mt-4 text-sm text-gray-700">
+				  <p>
+					<span className="font-medium">Name:</span> {userDetails?.name}
+				  </p>
+				  <p className="mt-2">
+					<span className="font-medium">Email:</span> {userDetails?.email}
+				  </p>
+				  <p className="mt-2">
+					<span className="font-medium">Phone:</span> {userDetails?.phoneNumber}
+				  </p>
+				</div>
+			  </div>
+	  
+			  {/* Ticket Information */}
+			  <div className="mb-6">
+				<h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
+				  Ticket Information
+				</h2>
+				<div className="mt-4 text-sm text-gray-700">
+				  <p>
+					<span className="font-medium">Lottery Name:</span> {ticket?.lottery_id.name}
+				  </p>
+				  <p className="mt-2">
+					<span className="font-medium">Draw Date:</span> {ticket?.lottery_id.draw_date}
+				  </p>
+				  <p className="mt-2">
+					<span className="font-medium">Purchase Date:</span> {ticket?.purchase_date}
+				  </p>
+				  <p className="mt-2">
+					<span className="font-medium">Ticket Number:</span> {ticket?.ticket_number}
+				  </p>
+				  <p className="mt-2">
+					<span className="font-medium">Status:</span> 
+					<span
+					  className={`px-2 py-1 rounded-md ${
+						ticket?.status === "active"
+						  ? "bg-green-100 text-green-700"
+						  : "bg-red-100 text-red-700"
+					  }`}
+					>
+					  {ticket?.status}
+					</span>
+				  </p>
+				</div>
+			  </div>
+	  
+			  {/* QR Code */}
+			  <div className="text-center mt-6">
+				<QRCode url={link}/>
+				<p className="mt-2 text-sm text-gray-500">Scan this QR code for more details</p>
+			  </div>
+	  
+			  {/* Footer */}
+			  <div className="mt-6 text-center text-gray-500 text-xs border-t pt-4">
+				<p>
+				  Together, we verify and ensure ticket authorization. For assistance,
+				  contact the support team.
+				</p>
+			  </div>
+			</div>
+		  </div>
+		);
+	  
+		// Wait a moment for React to render the component before capturing it
+		setTimeout(async () => {
+		  const canvas = await html2canvas(certificate, {
+			scale: 2,
+			useCORS: true,
+		  });
+	  
+		  // Generate PDF
+		  const imgData = canvas.toDataURL('image/png');
+		  const pdf = new jsPDF({
+			orientation: 'portrait',
+			unit: 'mm',
+			format: 'a4',
+		  });
+	  
+		  const pdfWidth = pdf.internal.pageSize.getWidth();
+		  const pdfHeight = pdf.internal.pageSize.getHeight();
+		  const imgWidth = pdfWidth - 20;
+		  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+		  const adjustedHeight = imgHeight > pdfHeight - 20 ? pdfHeight - 20 : imgHeight;
+		  const adjustedWidth = (canvas.width * adjustedHeight) / canvas.height;
+		  const xOffset = (pdfWidth - adjustedWidth) / 2;
+		  const yOffset = (pdfHeight - adjustedHeight) / 2;
+	  
+		  pdf.addImage(imgData, 'PNG', xOffset, yOffset, adjustedWidth, adjustedHeight);
+		  pdf.save('Ticket_Certificate.pdf');
+	  
+		  // Clean up: Remove the certificate element from the DOM
+		  root.unmount();
+		  document.body.removeChild(certificate);
+		}, 500); // Delay to ensure rendering completes
+	  };
+	  
+	
+
+	  
+	  
+	  
 	const totalTicketPages = Math.ceil(filteredTickets?.length / itemsPerPage);
 	const ticketStartIndex = (currentPage - 1) * itemsPerPage;
 	const ticketEndIndex = ticketStartIndex + itemsPerPage;
@@ -195,9 +334,9 @@ export default function ResultsPage() {
 										{currentTickets.map((ticket: any) => (
 											<div
 												key={ticket._id}
-												onClick={() =>
-													setSelectedTicket(ticket)
-												}
+												// onClick={() =>
+												// 	setSelectedTicket(ticket)
+												// }
 												className="p-4 border-b cursor-pointer hover:bg-gray-50"
 											>
 												<div className="flex justify-between items-center">
@@ -246,6 +385,19 @@ export default function ResultsPage() {
 																? "Won"
 																: ticket.status}
 														</span>
+														{/* <QRCode
+															url={`http://localhost:3000/draw/results/${ticket._id}`}
+															// url={`https://www.lottog.live/draw/results/${ticket._id}`}															
+														/> */}
+														<button
+															onClick={() => downloadPDF(ticket,userDetails,
+																// `http://localhost:3000/draw/results/${ticket._id}`
+																`https://www.lottog.live/draw/results/${ticket._id}`
+															)}
+															className="ml-3 bg-green-500 text-white px-6 py-2 rounded-md shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75"
+															>
+															<FaDownload />
+														</button>
 													</div>
 												</div>
 											</div>
@@ -472,14 +624,19 @@ export default function ResultsPage() {
 						</div>
 					)}
 				</div>
+					
+
+
+
+
 
 				{/* Modal */}
-				{selectedTicket && (
+				{/* {selectedTicket && (
 					<TicketDetailModal
 						ticket={selectedTicket}
 						onClose={() => setSelectedTicket(null)}
 					/>
-				)}
+				)} */}
 			</div>
 		</div>
 	);
