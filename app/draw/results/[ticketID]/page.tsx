@@ -5,9 +5,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
 import { useParams } from 'next/navigation';
 import { getUserTickets } from '@/redux/slices/userSlice';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import { FaDownload } from 'react-icons/fa6';
+// import QRCode from "@/components/QRCode";
+// import jsPDF from 'jspdf';
+// import html2canvas from 'html2canvas';
+// import { FaDownload } from 'react-icons/fa6';
 
 const TicketDetails = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -25,32 +26,32 @@ const TicketDetails = () => {
   const userTicket = user.userTickets;
   const ticket = userTicket.filter((ticket) => ticket._id === ticketID)[0];
 
-  const downloadPDF = async () => {
-    const certificate = document.getElementById('certificate');
-    if (certificate) {
-      const canvas = await html2canvas(certificate, {
-        scale: 2,
-        useCORS: true, 
-      });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
+  // const downloadPDF = async () => {
+  //   const certificate = document.getElementById('certificate');
+  //   if (certificate) {
+  //     const canvas = await html2canvas(certificate, {
+  //       scale: 2,
+  //       useCORS: true, 
+  //     });
+  //     const imgData = canvas.toDataURL('image/png');
+  //     const pdf = new jsPDF({
+  //       orientation: 'portrait',
+  //       unit: 'mm',
+  //       format: 'a4',
+  //     });
   
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pdfWidth - 20;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const adjustedHeight = imgHeight > pdfHeight - 20 ? (pdfHeight - 20) : imgHeight;
-      const adjustedWidth = (canvas.width * adjustedHeight) / canvas.height;
-      const xOffset = (pdfWidth - adjustedWidth) / 2;
-      const yOffset = (pdfHeight - adjustedHeight) / 2;
-      pdf.addImage(imgData, 'PNG', xOffset, yOffset, adjustedWidth, adjustedHeight);
-      pdf.save('Ticket_Certificate.pdf');
-    }
-  };
+  //     const pdfWidth = pdf.internal.pageSize.getWidth();
+  //     const pdfHeight = pdf.internal.pageSize.getHeight();
+  //     const imgWidth = pdfWidth - 20;
+  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  //     const adjustedHeight = imgHeight > pdfHeight - 20 ? (pdfHeight - 20) : imgHeight;
+  //     const adjustedWidth = (canvas.width * adjustedHeight) / canvas.height;
+  //     const xOffset = (pdfWidth - adjustedWidth) / 2;
+  //     const yOffset = (pdfHeight - adjustedHeight) / 2;
+  //     pdf.addImage(imgData, 'PNG', xOffset, yOffset, adjustedWidth, adjustedHeight);
+  //     pdf.save('Ticket_Certificate.pdf');
+  //   }
+  // };
 
   return (
     <div className="mt-16 min-h-screen flex items-center justify-center bg-gray-100 p-5 pt-10 relative">
@@ -124,13 +125,17 @@ const TicketDetails = () => {
             </p>
           </div>
         </div>
+        {/* <QRCode
+            url={`http://localhost:3000/draw/results/${ticketID}`}
+            // url={`https://www.lottog.live/draw/results/${ticket._id}`}															
+        /> */}
       </div>
-      <button
+      {/* <button
         onClick={downloadPDF}
         className="absolute top-1 right-5 bg-green-500 text-white px-6 py-2 rounded-md shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75"
       >
         <FaDownload />
-      </button>
+      </button> */}
     </div>
   );
 };
