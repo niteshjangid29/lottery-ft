@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KYC_DETAILS } from "@/utils/data/kycDetails";
 import toast from "react-hot-toast";
 import Image from "next/image";
@@ -8,37 +8,49 @@ import profile from "@/utils/assets/profile.jpg";
 import aadhar from "@/utils/assets/aadhar.png";
 import pan from "@/utils/assets/pan.png";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { AppDispatch, RootState } from "@/redux/store";
 import {
-	setIdNumber,
-	setKYCType,
-	setUserDetails,
+	getKycDetails,
+	setKycDetails,
 	setVerificationStatus,
+	updateKYC,
 } from "@/redux/slices/kycSlice";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const EKYCPage = () => {
-	const dispatch = useDispatch();
-	const { kycType, idNumber, isVerified, userDetails } = useSelector(
+	const dispatch = useDispatch<AppDispatch>();
+
+	useEffect(() => {
+		dispatch(getKycDetails());
+		// .unwrap()
+		// .then((data) => {
+		// 	dispatch(setKycDetails(data));
+		// 	dispatch(setVerificationStatus(data.kyc.status === "approved"));
+		// });
+	}, [dispatch]);
+
+	const { isVerified, kycDetails } = useSelector(
 		(state: RootState) => state.kyc
 	);
-	const { authUser } = useSelector((state: RootState) => state.user);
+	const { authUser, userDetails } = useSelector(
+		(state: RootState) => state.user
+	);
+	const [kycType, setKycType] = useState<"aadhar" | "pan">("aadhar");
+	const [idNumber, setIdNumber] = useState("");
 
 	const [otp, setOtp] = useState("");
 	const [isOtpSent, setIsOtpSent] = useState(false);
 	const router = useRouter();
 
-	const handleKycTypeSelect = (type: "aadhar" | "pan") => {
-		dispatch(setKYCType(type));
-		setIsOtpSent(false);
-		setOtp("");
-	};
+	const countryCode = userDetails?.phoneNumber.split(" ")[0];
+	const phone = userDetails?.phoneNumber.split(" ")[1];
 
-	const handleIdNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		dispatch(setIdNumber(e.target.value));
-	};
+	console.log("kycType", kycType);
+	console.log("kycDetails", kycDetails);
+	console.log("isVerified", isVerified);
 
-	const handleVerifyId = () => {
+	const handleVerifyId = async () => {
 		const user = KYC_DETAILS.find((user) =>
 			kycType === "aadhar"
 				? user.aadhar_no.replace(/\s/g, "") ===
@@ -51,49 +63,25 @@ const EKYCPage = () => {
 			return;
 		}
 
-		setIsOtpSent(true);
-		toast.success(
-			`OTP sent to ${user.phone_no.slice(0, 3)}****${user.phone_no.slice(
-				-4
-			)}`
-		);
-	};
-
-	const handleVerifyOTP = () => {
-		if (otp === "1234") {
-			// Dummy OTP
-			const user = KYC_DETAILS.find((user) =>
-				kycType === "aadhar"
-					? user.aadhar_no.replace(/\s/g, "") ===
-					  idNumber.replace(/\s/g, "")
-					: user.pan_no === idNumber
+		try {
+			await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/otp/sendOtp`, {
+				phoneNumber: phone,
+				countryCode: countryCode,
+			});
+			setIsOtpSent(true);
+			toast.success(
+				`OTP sent to *******${userDetails?.phoneNumber.slice(-3)}`
 			);
-
-			if (user) {
-				dispatch(
-					setUserDetails({
-						name: user.name,
-						dob: user.dob,
-						gender: user.gender,
-						phone_no: user.phone_no,
-						address: user.address,
-						aadhar_no: user.aadhar_no,
-						pan_no: user.pan_no,
-						bank_name: user.bank_details.bank_name,
-						bank_account_no: user.bank_details.account_no,
-					})
-				);
-				dispatch(setVerificationStatus(true));
-				toast.success("KYC verified successfully!");
-			} else {
-				toast.error("User not found");
-			}
-		} else {
-			toast.error("Invalid OTP");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message || "Failed to send OTP");
 		}
 	};
 
-	if(!authUser) {
+	const handleKycUpdate = async () => {
+		dispatch(updateKYC({ kycType, idNumber, otp: otp.trim() }));
+	};
+
+	if (!authUser) {
 		router.push("/login");
 		return null;
 	}
@@ -104,15 +92,19 @@ const EKYCPage = () => {
 				<h1 className="text-2xl font-bold mb-6">E-KYC Verification</h1>
 
 				{/* KYC Type Selection */}
-				<div className="flex flex-col md:flex-row gap-4 mb-6 md:w-[50%] mx-auto">
+				<div
+					className={`flex flex-col md:flex-row gap-4 mb-6 md:w-[50%] mx-auto ${
+						isVerified ? "hidden" : ""
+					}`}
+				>
 					<button
 						className={`px-4 py-2 rounded ${
 							kycType === "aadhar"
 								? "bg-blue-600 text-white"
 								: "bg-gray-200"
-						} disabled:bg-gray-200 disabled:text-gray-400 flex items-center justify-between gap-2`}
+						} disabled:bg-gray-200 disabled:text-gray-400 disabled:hidden flex items-center justify-between gap-2`}
 						disabled={isVerified}
-						onClick={() => handleKycTypeSelect("aadhar")}
+						onClick={() => setKycType("aadhar")}
 					>
 						<p>Link with your Aadhar</p>
 						<Image
@@ -127,9 +119,9 @@ const EKYCPage = () => {
 							kycType === "pan"
 								? "bg-blue-600 text-white"
 								: "bg-gray-200"
-						} disabled:bg-gray-200 disabled:text-gray-400 flex items-center justify-between gap-2`}
+						} disabled:bg-gray-200 disabled:text-gray-400 disabled:hidden flex items-center justify-between gap-2`}
 						disabled={isVerified}
-						onClick={() => handleKycTypeSelect("pan")}
+						onClick={() => setKycType("pan")}
 					>
 						<p>Link with your PAN</p>
 						<Image src={pan} alt="pan" width={40} height={40} />
@@ -146,8 +138,9 @@ const EKYCPage = () => {
 									? "Enter Aadhar Number"
 									: "Enter PAN Number"
 							}
+							required
 							value={idNumber}
-							onChange={handleIdNumberChange}
+							onChange={(e) => setIdNumber(e.target.value)}
 							className="w-full p-2 border rounded"
 						/>
 						{!isOtpSent ? (
@@ -167,7 +160,7 @@ const EKYCPage = () => {
 									className="w-full p-2 border rounded"
 								/>
 								<button
-									onClick={handleVerifyOTP}
+									onClick={handleKycUpdate}
 									className="w-full bg-blue-600 text-white py-2 rounded"
 								>
 									Verify OTP
@@ -178,7 +171,7 @@ const EKYCPage = () => {
 				)}
 
 				{/* Display KYC Details */}
-				{isVerified && userDetails && (
+				{isVerified && kycDetails && (
 					<div className="mt-6 p-4 border rounded-lg bg-blue-100">
 						<h2 className="text-base font-semibold mb-4">
 							Verified KYC Details
@@ -200,7 +193,7 @@ const EKYCPage = () => {
 								<p>
 									Name:{" "}
 									<span className="font-bold capitalize">
-										{userDetails.name}
+										{kycDetails.name}
 									</span>
 								</p>
 								<p>
@@ -212,7 +205,11 @@ const EKYCPage = () => {
 								<p>
 									Type:{" "}
 									<span className="font-bold uppercase">
-										{kycType === "aadhar"
+										{kycDetails.kyc.documents.find(
+											(doc) =>
+												doc.kycType.toLowerCase() ===
+												"aadhar"
+										)
 											? "Aadhar"
 											: "PAN"}
 									</span>
