@@ -3,19 +3,15 @@ import React, { useEffect } from 'react';
 import { FaCheckCircle } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { getUserTickets } from '@/redux/slices/userSlice';
-// import QRCode from "@/components/QRCode";
-// import jsPDF from 'jspdf';
-// import html2canvas from 'html2canvas';
-// import { FaDownload } from 'react-icons/fa6';
-
+// import QRReader from '@/components/QRReader';
 const TicketDetails = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+
   useEffect(() => {
-    dispatch(getUserTickets())
-      .unwrap()
-      .then((ticket) => console.log(ticket));
+    dispatch(getUserTickets());
   }, [dispatch]);
 
   const user = useSelector((state: RootState) => state.user);
@@ -24,118 +20,116 @@ const TicketDetails = () => {
 
   const userDetails = user.userDetails;
   const userTicket = user.userTickets;
-  const ticket = userTicket.filter((ticket) => ticket._id === ticketID)[0];
+  const ticket = userTicket.find((ticket) => ticket._id === ticketID);
 
-  // const downloadPDF = async () => {
-  //   const certificate = document.getElementById('certificate');
-  //   if (certificate) {
-  //     const canvas = await html2canvas(certificate, {
-  //       scale: 2,
-  //       useCORS: true, 
-  //     });
-  //     const imgData = canvas.toDataURL('image/png');
-  //     const pdf = new jsPDF({
-  //       orientation: 'portrait',
-  //       unit: 'mm',
-  //       format: 'a4',
-  //     });
-  
-  //     const pdfWidth = pdf.internal.pageSize.getWidth();
-  //     const pdfHeight = pdf.internal.pageSize.getHeight();
-  //     const imgWidth = pdfWidth - 20;
-  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  //     const adjustedHeight = imgHeight > pdfHeight - 20 ? (pdfHeight - 20) : imgHeight;
-  //     const adjustedWidth = (canvas.width * adjustedHeight) / canvas.height;
-  //     const xOffset = (pdfWidth - adjustedWidth) / 2;
-  //     const yOffset = (pdfHeight - adjustedHeight) / 2;
-  //     pdf.addImage(imgData, 'PNG', xOffset, yOffset, adjustedWidth, adjustedHeight);
-  //     pdf.save('Ticket_Certificate.pdf');
-  //   }
-  // };
+  const handleVerify = () => {
+    router.push('/draw/results');
+  };
 
   return (
-    <div className="mt-16 min-h-screen flex items-center justify-center bg-gray-100 p-5 pt-10 relative">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-5 mt-16">
+      {/* Form Container */}
       <div
-        id="certificate"
-        className="w-full max-w-2xl bg-white border-4 border-dashed border-gray-400 shadow-xl rounded-xl p-10 relative"
+        className="relative bg-white shadow-lg rounded-lg w-full max-w-4xl py-10 px-12"
+        style={{
+          backgroundImage: `url('/punjab.png')`, // Adjust the path to your public folder
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        }}
       >
-        {/* Top Header */}
-        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-white px-6 py-2 rounded-full shadow-lg border-2 border-green-500 sm:block hidden">
-          <h1 className="text-xl font-bold text-green-600 uppercase text-center">
-            The Ticket is Authorised
-          </h1>
-        </div>
+        {/* Overlay for better readability */}
+        <div className="absolute inset-0 bg-white bg-opacity-80 rounded-lg pointer-events-none"></div>
 
-        {/* Header */}
-        <div className="flex items-center justify-center text-green-500">
-          <FaCheckCircle size={40} />
-        </div>
+        {/* Content */}
+        <div className="relative">
+          {/* Header */}
+          <div className="flex flex-col items-center text-center mb-8">
+            <div className="text-green-600">
+              <FaCheckCircle size={70} />
+            </div>
+            <h1 className="text-3xl font-bold mt-4 text-gray-800">
+              Certificate Successfully Verified
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Certificate for Ticket Authorization
+            </p>
+          </div>
 
-        {/* Certificate Title */}
-        <h1 className="text-2xl font-extrabold text-center mt-4">
-          Certificate of Authorization
-        </h1>
-        <p className="text-center text-gray-500 text-sm mt-2">
-          This certificate confirms the details of your ticket and lottery.
-        </p>
+          {/* Form Content */}
+          <form className="space-y-8">
+            {/* User Information */}
+            <fieldset className="border border-gray-300 rounded-lg p-6">
+              <legend className="text-lg font-semibold text-gray-700 px-2">
+                User Information
+              </legend>
+              <div className="space-y-4 mt-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between">
+                  <span className="font-medium text-gray-800">Name:</span>
+                  <span className="text-gray-700">{userDetails?.name}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between">
+                  <span className="font-medium text-gray-800">Email:</span>
+                  <span className="text-gray-700">{userDetails?.email}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between">
+                  <span className="font-medium text-gray-800">Phone:</span>
+                  <span className="text-gray-700">{userDetails?.phoneNumber}</span>
+                </div>
+              </div>
+            </fieldset>
 
-        {/* Ticket Information */}
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold text-gray-700">Ticket Information</h2>
-          <div className="bg-gray-50 shadow-md rounded-md p-5 mt-2">
-            <p className="text-gray-700 text-sm">
-              <span className="font-medium text-gray-800">Lottery Name:</span> {ticket?.lottery_id.name}
-            </p>
-            <p className="text-gray-700 text-sm mt-2">
-              <span className="font-medium text-gray-800">Draw Date:</span> {ticket?.lottery_id.draw_date}
-            </p>
-            <p className="text-gray-700 text-sm mt-2">
-              <span className="font-medium text-gray-800">Purchase Date:</span> {ticket?.purchase_date}
-            </p>
-            <p className="text-gray-700 text-sm mt-2">
-              <span className="font-medium text-gray-800">Ticket Number:</span> {ticket?.ticket_number}
-            </p>
-            <p className="text-gray-700 text-sm mt-2">
-              <span className="font-medium text-gray-800">Status:</span>{' '}
-              <span
-                className={`px-2 py-1 rounded-md ${
-                  ticket?.status === 'active'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700'
-                }`}
+            {/* Ticket Information */}
+            <fieldset className="border border-gray-300 rounded-lg p-6">
+              <legend className="text-lg font-semibold text-gray-700 px-2">
+                Ticket Information
+              </legend>
+              <div className="space-y-4 mt-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between">
+                  <span className="font-medium text-gray-800">Lottery Name:</span>
+                  <span className="text-gray-700">{ticket?.lottery_id?.name}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between">
+                  <span className="font-medium text-gray-800">Draw Date:</span>
+                  <span className="text-gray-700">{ticket?.lottery_id?.draw_date}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between">
+                  <span className="font-medium text-gray-800">Purchase Date:</span>
+                  <span className="text-gray-700">{ticket?.purchase_date}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between">
+                  <span className="font-medium text-gray-800">Ticket Number:</span>
+                  <span className="text-gray-700">{ticket?.ticket_number}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between">
+                  <span className="font-medium text-gray-800">Status:</span>
+                  <span
+                    className={`px-3 py-1 rounded-md text-sm ${
+                      ticket?.status === 'active'
+                        ? 'bg-green-100 text-green-600'
+                        : 'bg-red-100 text-red-600'
+                    }`}
+                  >
+                    {ticket?.status}
+                  </span>
+                </div>
+              </div>
+            </fieldset>
+
+            {/* Verify Another Ticket Button */}
+            <div className="flex justify-center">
+              <button
+                type="button"
+                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg shadow-lg"
+                onClick={handleVerify}
               >
-                {ticket?.status}
-              </span>
-            </p>
-          </div>
+                Verify Another Ticket
+              </button>
+            </div>
+          </form>
         </div>
-
-        {/* User Information */}
-        <div className="mt-8">
-          <h2 className="text-lg font-semibold text-gray-700">User Information</h2>
-          <div className="bg-gray-50 shadow-md rounded-md p-5 mt-2">
-            <p className="text-gray-700 text-sm">
-              <span className="font-medium text-gray-800">Name:</span> {userDetails?.name}
-            </p>
-            <p className="text-gray-700 text-sm mt-2">
-              <span className="font-medium text-gray-800">Email:</span> {userDetails?.email}
-            </p>
-            <p className="text-gray-700 text-sm mt-2">
-              <span className="font-medium text-gray-800">Phone:</span> {userDetails?.phoneNumber}
-            </p>
-          </div>
-        </div>
-        {/* <QRCode
-            url={`http://localhost:3000/draw/results/${ticketID}`}
-            // url={`https://www.lottog.live/draw/results/${ticket._id}`}															
-        /> */}
       </div>
-      {/* <button
-        onClick={downloadPDF}
-        className="absolute top-1 right-5 bg-green-500 text-white px-6 py-2 rounded-md shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75"
-      >
-        <FaDownload />
-      </button> */}
+      {/* <QRReader /> */}
     </div>
   );
 };

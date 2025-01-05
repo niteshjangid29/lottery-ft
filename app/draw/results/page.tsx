@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { getUserTickets } from "@/redux/slices/userSlice";
-import { FaCheckCircle } from 'react-icons/fa';
+// import { FaCheckCircle } from 'react-icons/fa';
 import QRCode from "@/components/QRCode";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -92,54 +92,61 @@ export default function ResultsPage() {
 		const root = ReactDOM.createRoot(certificate);
 	  
 		root.render(
-		  <div className="mt-16 min-h-screen flex items-center justify-center bg-gray-100 p-5 pt-10 relative">
-			<div
-			  id="certificate"
-			  className="w-full max-w-2xl bg-white border-4 border-dashed border-gray-400 shadow-xl rounded-xl p-10 relative"
-			>
-			  {/* Top Header */}
-			  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-white px-6 py-2 rounded-full shadow-lg border-2 border-green-500 sm:block hidden">
-				<h1 className="text-xl font-bold text-green-600 uppercase text-center">
-				  The Ticket is Authorised
-				</h1>
-			  </div>
-	  
+			<div className="bg-gray-100 py-10 px-4 flex justify-center items-center min-h-screen">
+			<div className="w-full max-w-3xl bg-white border shadow-lg rounded-xl p-6 relative">
 			  {/* Header */}
-			  <div className="flex items-center justify-center text-green-500">
-				<FaCheckCircle size={40} />
+			  <div className="text-center mb-6">
+				<h1 className="text-xl font-bold text-gray-700">
+				  Ministry of Ticket Authorization
+				</h1>
+				<p className="text-sm text-gray-500">
+				  Provisional Certificate for Ticket Purchase
+				</p>
 			  </div>
 	  
-			  {/* Certificate Title */}
-			  <h1 className="text-2xl font-extrabold text-center mt-4">
-				Certificate of Authorization
-			  </h1>
-			  <p className="text-center text-gray-500 text-sm mt-2">
-				This certificate confirms the details of your ticket and lottery.
-			  </p>
+			  {/* Beneficiary Details */}
+			  <div className="mb-6">
+				<h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
+				  Beneficiary Details
+				</h2>
+				<div className="mt-4 text-sm text-gray-700">
+				  <p>
+					<span className="font-medium">Name:</span> {userDetails?.name}
+				  </p>
+				  <p className="mt-2">
+					<span className="font-medium">Email:</span> {userDetails?.email}
+				  </p>
+				  <p className="mt-2">
+					<span className="font-medium">Phone:</span> {userDetails?.phoneNumber}
+				  </p>
+				</div>
+			  </div>
 	  
 			  {/* Ticket Information */}
-			  <div className="mt-6">
-				<h2 className="text-lg font-semibold text-gray-700">Ticket Information</h2>
-				<div className="bg-gray-50 shadow-md rounded-md p-5 mt-2">
-				  <p className="text-gray-700 text-sm">
-					<span className="font-medium text-gray-800">Lottery Name:</span> {ticket?.lottery_id.name}
+			  <div className="mb-6">
+				<h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
+				  Ticket Information
+				</h2>
+				<div className="mt-4 text-sm text-gray-700">
+				  <p>
+					<span className="font-medium">Lottery Name:</span> {ticket?.lottery_id.name}
 				  </p>
-				  <p className="text-gray-700 text-sm mt-2">
-					<span className="font-medium text-gray-800">Draw Date:</span> {ticket?.lottery_id.draw_date}
+				  <p className="mt-2">
+					<span className="font-medium">Draw Date:</span> {ticket?.lottery_id.draw_date}
 				  </p>
-				  <p className="text-gray-700 text-sm mt-2">
-					<span className="font-medium text-gray-800">Purchase Date:</span> {ticket?.purchase_date}
+				  <p className="mt-2">
+					<span className="font-medium">Purchase Date:</span> {ticket?.purchase_date}
 				  </p>
-				  <p className="text-gray-700 text-sm mt-2">
-					<span className="font-medium text-gray-800">Ticket Number:</span> {ticket?.ticket_number}
+				  <p className="mt-2">
+					<span className="font-medium">Ticket Number:</span> {ticket?.ticket_number}
 				  </p>
-				  <p className="text-gray-700 text-sm mt-2">
-					<span className="font-medium text-gray-800">Status:</span>{' '}
+				  <p className="mt-2">
+					<span className="font-medium">Status:</span> 
 					<span
 					  className={`px-2 py-1 rounded-md ${
-						ticket?.status === 'active'
-						  ? 'bg-green-100 text-green-700'
-						  : 'bg-red-100 text-red-700'
+						ticket?.status === "active"
+						  ? "bg-green-100 text-green-700"
+						  : "bg-red-100 text-red-700"
 					  }`}
 					>
 					  {ticket?.status}
@@ -148,26 +155,19 @@ export default function ResultsPage() {
 				</div>
 			  </div>
 	  
-			  {/* User Information */}
-			  <div className="mt-8">
-				<h2 className="text-lg font-semibold text-gray-700">User Information</h2>
-				<div className="bg-gray-50 shadow-md rounded-md p-5 mt-2">
-				  <p className="text-gray-700 text-sm">
-					<span className="font-medium text-gray-800">Name:</span> {userDetails?.name}
-				  </p>
-				  <p className="text-gray-700 text-sm mt-2">
-					<span className="font-medium text-gray-800">Email:</span> {userDetails?.email}
-				  </p>
-				  <p className="text-gray-700 text-sm mt-2">
-					<span className="font-medium text-gray-800">Phone:</span> {userDetails?.phoneNumber}
-				  </p>
-				</div>
+			  {/* QR Code */}
+			  <div className="text-center mt-6">
+				<QRCode url={link}/>
+				<p className="mt-2 text-sm text-gray-500">Scan this QR code for more details</p>
 			  </div>
 	  
-			  {/* QR Code */}
-			  <QRCode
-				url={`${link}`}
-			  />
+			  {/* Footer */}
+			  <div className="mt-6 text-center text-gray-500 text-xs border-t pt-4">
+				<p>
+				  Together, we verify and ensure ticket authorization. For assistance,
+				  contact the support team.
+				</p>
+			  </div>
 			</div>
 		  </div>
 		);
