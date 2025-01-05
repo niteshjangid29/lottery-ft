@@ -4,6 +4,7 @@ import walletReducer from "./slices/walletSlice";
 import userReducer from "./slices/userSlice";
 import retailerReducer from "./slices/retailerSlice";
 import locationReducer from "./slices/locationSlice";
+import kycReducer from "./slices/kycSlice";
 
 export const store = configureStore({
 	reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
 		user: userReducer,
 		retailer: retailerReducer,
 		location: locationReducer,
+		kyc: kycReducer,
 	},
 });
 

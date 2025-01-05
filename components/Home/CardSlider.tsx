@@ -17,7 +17,7 @@ interface CardSliderProps {
 const CardSlider: React.FC<CardSliderProps> = ({ affiliate_id }) => {
 	const settings = {
 		dots: true,
-		className: "center",
+		className: "mx-auto",
 		infinite: true,
 		slidesToShow: 4,
 		swipeToSlide: true,

@@ -64,13 +64,13 @@ function LoginPageContent() {
 				router.push(
 					`/retailer/dashboard/?retailer_id=${response.data.retailer._id}`
 				);
-				router.refresh();
+				// router.refresh();
 			} else {
 				// Handle user login
 				dispatch(login(response.data.user));
 				localStorage.setItem("userToken", response.data.token);
 				router.push(`/?affiliate_id=${affiliate_id}`);
-				router.refresh();
+				// router.refresh();
 			}
 
 			toast.success("Login successful!");
@@ -197,7 +197,7 @@ function LoginPageContent() {
 				</form>
 
 				<p className="mt-4 text-center text-sm text-gray-600">
-					{"Don't have an account?"}
+					{"Don't have an account? "}
 					<Link
 						href={`/signup/?affiliate_id=${affiliate_id}`}
 						className="font-medium text-blue-600 hover:text-blue-500"

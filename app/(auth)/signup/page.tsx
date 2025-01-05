@@ -86,13 +86,13 @@ function SignupPageContent() {
 				router.push(
 					`/retailer/dashboard/?retailer_id=${response.data.retailer._id}`
 				);
-				router.refresh();
+				// router.refresh();
 			} else {
 				// Handle user signup
 				dispatch(login(response.data.user));
 				localStorage.setItem("userToken", response.data.token);
 				router.push(`/?affiliate_id=${affiliate_id}`);
-				router.refresh();
+				// router.refresh();
 			}
 
 			toast.success("Registration successful!");
