@@ -1,7 +1,7 @@
 "use client";
 
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { AppDispatch, RootState } from "@/redux/store";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import profile from "@/utils/assets/profile.jpg";
@@ -14,24 +14,40 @@ import {
 	FaUniversity,
 	FaRedoAlt,
 } from "react-icons/fa";
-import { resetKYC } from "@/redux/slices/kycSlice";
+import { getKycDetails, resetKYC } from "@/redux/slices/kycSlice";
+import { format } from "date-fns";
+import { useEffect } from "react";
 
 const KYCDetailsPage = () => {
 	const router = useRouter();
-	const { userDetails, kycType } = useSelector(
-		(state: RootState) => state.kyc
-	);
-	const dispatch = useDispatch();
+	const { kycDetails } = useSelector((state: RootState) => state.kyc);
+	const dispatch = useDispatch<AppDispatch>();
 
-	if (!userDetails) {
-		router.push("/e-kyc");
-		return null;
-	}
+	useEffect(() => {
+		dispatch(getKycDetails());
+	}, [dispatch]);
 
 	const handleResetKYC = () => {
 		dispatch(resetKYC());
 		router.push("/e-kyc");
 	};
+
+	if (!kycDetails) {
+		router.push("/e-kyc");
+		return null;
+	}
+
+	const kycType = kycDetails.kyc.documents.find(
+		(doc) => doc.kycType.toLowerCase() === "aadhar"
+	)?.kycType;
+
+	const aadharNo = kycDetails.kyc.documents.find(
+		(doc) => doc.kycType.toLowerCase() === "aadhar"
+	)?.idNumber;
+
+	const panNo = kycDetails.kyc.documents.find(
+		(doc) => doc.kycType.toLowerCase() === "pan"
+	)?.idNumber;
 
 	return (
 		<div className="min-h-screen py-16 md:pb-0 bg-gray-100">
@@ -55,7 +71,7 @@ const KYCDetailsPage = () => {
 						/>
 						<div>
 							<h1 className="text-lg font-bold capitalize">
-								{userDetails.name}
+								{kycDetails.name}
 							</h1>
 							<p className="text-green-600 font-semibold">
 								Verified via{" "}
@@ -74,17 +90,19 @@ const KYCDetailsPage = () => {
 						<div>
 							<p className="text-gray-600">Full Name</p>
 							<p className="font-semibold capitalize">
-								{userDetails.name}
+								{kycDetails.name}
 							</p>
 						</div>
 						<div>
 							<p className="text-gray-600">Date of Birth</p>
-							<p className="font-semibold">{userDetails.dob}</p>
+							<p className="font-semibold">
+								{format(new Date(kycDetails.dob), "dd-MM-yyyy")}
+							</p>
 						</div>
 						<div>
 							<p className="text-gray-600">Gender</p>
 							<p className="font-semibold capitalize">
-								{userDetails.gender}
+								{kycDetails.gender}
 							</p>
 						</div>
 					</div>
@@ -99,13 +117,15 @@ const KYCDetailsPage = () => {
 						<div>
 							<p className="text-gray-600">Aadhar Number</p>
 							<p className="font-semibold">
-								XXXX XXXX {userDetails.aadhar_no?.slice(-4)}
+								XXXX XXXX {aadharNo?.slice(-4)}
 							</p>
 						</div>
 						<div>
 							<p className="text-gray-600">PAN Number</p>
 							<p className="font-semibold">
-								XXXXXXX{userDetails.pan_no?.slice(-3)}
+								{panNo?.length === 0 || !panNo
+									? "-"
+									: `XXXXXXX${panNo?.slice(-3)}`}
 							</p>
 						</div>
 					</div>
@@ -120,7 +140,7 @@ const KYCDetailsPage = () => {
 						<div>
 							<p className="text-gray-600">Phone Number</p>
 							<p className="font-semibold">
-								{userDetails.phone_no}
+								{kycDetails.phone_no}
 							</p>
 						</div>
 					</div>
@@ -135,14 +155,16 @@ const KYCDetailsPage = () => {
 						<div>
 							<p className="text-gray-600">Bank Name</p>
 							<p className="font-semibold">
-								{userDetails?.bank_name}
+								{kycDetails?.kyc.bank_details.bank_name}
 							</p>
 						</div>
 						<div>
 							<p className="text-gray-600">Account Number</p>
 							<p className="font-semibold">
 								XXXXXXXXX
-								{userDetails.bank_account_no?.slice(-4)}
+								{kycDetails?.kyc.bank_details.account_no?.slice(
+									-4
+								)}
 							</p>
 						</div>
 					</div>
@@ -153,7 +175,9 @@ const KYCDetailsPage = () => {
 					<h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
 						<FaMapMarkerAlt /> Address
 					</h2>
-					<p className="whitespace-pre-wrap">{userDetails.address}</p>
+					<p className="whitespace-pre-wrap">
+						{kycDetails.address.local}
+					</p>
 				</div>
 
 				{/* Reset KYC */}

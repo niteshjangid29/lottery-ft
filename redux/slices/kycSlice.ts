@@ -1,60 +1,140 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
 
 interface KYCState {
-	kycType: "aadhar" | "pan" | null;
-	idNumber: string;
 	isVerified: boolean;
-	userDetails: {
+	kycDetails: {
 		name: string;
 		dob: string;
 		gender: string;
 		phone_no: string;
-		address: string;
-		aadhar_no?: string;
-		pan_no?: string;
-		bank_name?: string;
-		bank_account_no?: string;
+		address: {
+			local: string;
+			city: string;
+			state: string;
+			country: string;
+			pincode: string;
+		};
+		kyc: {
+			status: string;
+			documents: {
+				kycType: string;
+				url: string;
+				idNumber: string;
+			}[];
+			bank_details: {
+				bank_name: string;
+				account_no: string;
+				ifsc_code: string;
+			};
+		};
 	} | null;
 }
 
 const initialState: KYCState = {
-	kycType: null,
-	idNumber: "",
 	isVerified: false,
-	userDetails: null,
+	kycDetails: null,
 };
+
+export const updateKYC = createAsyncThunk(
+	"kyc/updateKYC",
+	async ({
+		kycType,
+		idNumber,
+		otp,
+	}: {
+		kycType: string;
+		idNumber: string;
+		otp: string;
+	}) => {
+		try {
+			const response = await axios.put(
+				`${process.env.NEXT_PUBLIC_API_URL}/user/kyc/update`,
+				{ kycType, idNumber, otp },
+				{
+					headers: {
+						authorization: `Bearer ${localStorage.getItem(
+							"userToken"
+						)}`,
+					},
+				}
+			);
+
+			console.log("KYC update response:", response.data);
+
+			return response.data;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				return error.response.data;
+			}
+			return "Failed to update KYC";
+		}
+	}
+);
+
+export const getKycDetails = createAsyncThunk("kyc/getKycDetails", async () => {
+	try {
+		const response = await axios.get(
+			`${process.env.NEXT_PUBLIC_API_URL}/user/kyc/details`,
+			{
+				headers: {
+					authorization: `Bearer ${localStorage.getItem(
+						"userToken"
+					)}`,
+				},
+			}
+		);
+
+		// console.log("KYC details response:", response.data);
+
+		return response.data;
+	} catch (error) {
+		if (axios.isAxiosError(error) && error.response) {
+			return error.response.data;
+		}
+		return "Failed to get KYC details";
+	}
+});
 
 const kycSlice = createSlice({
 	name: "kyc",
 	initialState,
 	reducers: {
-		setKYCType: (state, action: PayloadAction<"aadhar" | "pan" | null>) => {
-			state.kycType = action.payload;
-			state.idNumber = "";
-			state.isVerified = false;
-		},
-		setIdNumber: (state, action: PayloadAction<string>) => {
-			state.idNumber = action.payload;
-		},
 		setVerificationStatus: (state, action: PayloadAction<boolean>) => {
 			state.isVerified = action.payload;
 		},
-		setUserDetails: (
+		setKycDetails: (
 			state,
-			action: PayloadAction<KYCState["userDetails"]>
+			action: PayloadAction<KYCState["kycDetails"]>
 		) => {
-			state.userDetails = action.payload;
+			state.kycDetails = action.payload;
 		},
 		resetKYC: () => initialState,
 	},
+	extraReducers: (builder) => {
+		builder
+			.addCase(updateKYC.fulfilled, (state, action) => {
+				state.isVerified =
+					action.payload.kyc_details.kyc.status === "approved";
+				state.kycDetails = action.payload.kyc_details;
+			})
+			.addCase(updateKYC.rejected, (state) => {
+				state.isVerified = false;
+				state.kycDetails = null;
+			})
+			.addCase(getKycDetails.fulfilled, (state, action) => {
+				state.isVerified =
+					action.payload.kyc.status === "approved";
+				state.kycDetails = action.payload;
+			})
+			.addCase(getKycDetails.rejected, (state) => {
+				state.isVerified = false;
+				state.kycDetails = null;
+			});
+	},
 });
 
-export const {
-	setKYCType,
-	setIdNumber,
-	setVerificationStatus,
-	setUserDetails,
-	resetKYC,
-} = kycSlice.actions;
+export const { setVerificationStatus, setKycDetails, resetKYC } =
+	kycSlice.actions;
 
 export default kycSlice.reducer;

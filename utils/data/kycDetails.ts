@@ -2,9 +2,9 @@ export const KYC_DETAILS = [
 	{
 		id: 1,
 		name: "Nikhil Mandhani",
-		aadhar_no: "8384 5688 3739",
+		aadhar_no: "5026 4962 3117",
 		phone_no: "+91 1234567890",
-		pan_no: "ABCDE1234F",
+		pan_no: "FNGPM1579E",
 		dob: "01-01-1990",
 		gender: "male",
 		address: "1234 Main Street, New Delhi",
@@ -56,7 +56,6 @@ export const KYC_DETAILS = [
 			bank_name: "HDFC Bank",
 			account_no: "1234567890123",
 			ifsc_code: "HDFC12345678",
-			swift_code: "HDFC12345678",
 		},
 	},
 ];

@@ -1,6 +1,5 @@
 "use client";
 import useClickOutside from "@/hooks/useClickOutside";
-import { resetKYC } from "@/redux/slices/kycSlice";
 import { logoutRetailer } from "@/redux/slices/retailerSlice";
 import { logout } from "@/redux/slices/userSlice";
 import { RootState } from "@/redux/store";
@@ -10,6 +9,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useRef, useState } from "react";
 import { CgProfile } from "react-icons/cg";
 import { FiHome, FiList, FiMenu, FiX } from "react-icons/fi";
+import { HiOutlineIdentification } from "react-icons/hi2";
 import { IoTicketOutline, IoWalletOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -57,8 +57,6 @@ function NavbarContent() {
 			// Dispatch logout actions
 			if (authUser) {
 				dispatch(logout());
-				// reseting KYC at Sign out, it will be removed once we store KYC details in DB
-				dispatch(resetKYC());
 			} else if (authRetailer) {
 				dispatch(logoutRetailer());
 			}
@@ -82,7 +80,7 @@ function NavbarContent() {
 		{ label: "Results", href: "/draw/results" },
 		{ label: "Credit", href: "/credit" },
 		{ label: "Contact-Us", href: "/support/contact_us" },
-		{ label: "eKYC", href: "/e-kyc", position: "sidebar" },
+		{ label: "Smart Play", href: "/play-smart", position: "sidebar" },
 	];
 
 	const bottomNavItems = [
@@ -90,6 +88,7 @@ function NavbarContent() {
 		{ label: "Lottery", href: "/lotteries", icon: IoTicketOutline },
 		{ label: "Result", href: "/draw/results", icon: FiList },
 		{ label: "Credit", href: "/credit", icon: IoWalletOutline },
+		{ label: "eKYC", href: "/e-kyc", icon: HiOutlineIdentification },
 	];
 
 	return (
@@ -129,29 +128,33 @@ function NavbarContent() {
 							</Link>
 							<div className="hidden sm:block sm:ml-6">
 								<div className={`flex space-x-4`}>
-									{navItems.map((item) => (
-										<Link
-											key={item.href}
-											href={`${
-												authUser && retailer
-													? item.href === "/"
-														? `${item.href}store/?affiliate_id=${affiliate_id}`
-														: `${item.href}/?affiliate_id=${affiliate_id}`
-													: authRetailer &&
-													  retailer &&
-													  item.href === "/"
-													? `${item.href}store/?retailer_id=${retailer._id}`
-													: item.href
-											}`}
-											className={`px-3 py-2 rounded-md text-sm font-medium text-gray-100 hover:text-white hover:bg-gray-700 ${
-												currentPath === item.href
-													? "bg-gray-700"
-													: ""
-											}`}
-										>
-											{item.label}
-										</Link>
-									))}
+									{navItems.map(
+										(item) =>
+											item.position !== "sidebar" && (
+												<Link
+													key={item.href}
+													href={`${
+														authUser && retailer
+															? item.href === "/"
+																? `${item.href}store/?affiliate_id=${affiliate_id}`
+																: `${item.href}/?affiliate_id=${affiliate_id}`
+															: authRetailer &&
+															  retailer &&
+															  item.href === "/"
+															? `${item.href}store/?retailer_id=${retailer._id}`
+															: item.href
+													}`}
+													className={`px-3 py-2 rounded-md text-sm font-medium text-gray-100 hover:text-white hover:bg-gray-700 ${
+														currentPath ===
+														item.href
+															? "bg-gray-700"
+															: ""
+													}`}
+												>
+													{item.label}
+												</Link>
+											)
+									)}
 								</div>
 							</div>
 						</div>
@@ -262,7 +265,7 @@ function NavbarContent() {
 						className={`w-1/2 fixed top-16 h-full bg-white`}
 						ref={mobileMenuRef}
 					>
-						<div className={`flex flex-col gap-2 p-2`}>
+						<div className={`flex flex-col`}>
 							{navItems.map((item) => (
 								<Link
 									href={`${
@@ -277,7 +280,11 @@ function NavbarContent() {
 											: item.href
 									}`}
 									key={item.href}
-									className={`text-gray-600 hover:text-blue-600 transition border-b text-lg`}
+									className={`text-gray-600 hover:text-blue-600 transition border-b px-3 py-1 text-lg ${
+										currentPath === item.href
+											? "bg-gray-300"
+											: ""
+									}`}
 									onClick={() => setIsMobileMenuOpen(false)}
 								>
 									{item.label}
@@ -290,7 +297,7 @@ function NavbarContent() {
 
 			{/* Bottom Navigation for Mobile display */}
 			<div className="fixed bottom-0 left-0 right-0 bg-gray-300 rounded-t-3xl border-t md:hidden z-20 transition-all duration-300">
-				<div className="grid grid-cols-4 h-16">
+				<div className="grid grid-cols-5 h-16">
 					{bottomNavItems.map((item) => {
 						const Icon = item.icon;
 						return (
