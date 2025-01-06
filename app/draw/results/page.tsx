@@ -204,12 +204,6 @@ export default function ResultsPage() {
 		  document.body.removeChild(certificate);
 		}, 500); // Delay to ensure rendering completes
 	  };
-	  
-	
-
-	  
-	  
-	  
 	const totalTicketPages = Math.ceil(filteredTickets?.length / itemsPerPage);
 	const ticketStartIndex = (currentPage - 1) * itemsPerPage;
 	const ticketEndIndex = ticketStartIndex + itemsPerPage;
