@@ -10,18 +10,12 @@ import { getUserTickets } from '@/redux/slices/userSlice';
 const TicketDetails = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-
-  // Access the user authentication state
   const authUser = useSelector((state: RootState) => state.user.authUser);
-
   useEffect(() => {
-    // Check if user is authenticated
     if (!authUser) {
-      // Redirect to login page with redirectTo parameter
       router.push(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
-    // Fetch user tickets if authenticated
     dispatch(getUserTickets());
   }, [authUser, dispatch, router]);
 
@@ -39,7 +33,6 @@ const TicketDetails = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-5 mt-16">
-      {/* Form Container */}
       <div
         className="relative bg-white shadow-lg rounded-lg w-full max-w-4xl py-10 px-12"
         style={{
@@ -49,10 +42,8 @@ const TicketDetails = () => {
           backgroundPosition: 'center',
         }}
       >
-        {/* Overlay for better readability */}
         <div className="absolute inset-0 bg-white bg-opacity-80 rounded-lg pointer-events-none"></div>
 
-        {/* Content */}
         <div className="relative">
           {/* Header */}
           <div className="flex flex-col items-center text-center mb-8">
