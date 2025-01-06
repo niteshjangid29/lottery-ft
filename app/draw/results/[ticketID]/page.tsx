@@ -6,13 +6,24 @@ import { AppDispatch, RootState } from '@/redux/store';
 import { useParams, useRouter } from 'next/navigation';
 import { getUserTickets } from '@/redux/slices/userSlice';
 // import QRReader from '@/components/QRReader';
+
 const TicketDetails = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
+  // Access the user authentication state
+  const authUser = useSelector((state: RootState) => state.user.authUser);
+
   useEffect(() => {
+    // Check if user is authenticated
+    if (!authUser) {
+      // Redirect to login page with redirectTo parameter
+      router.push(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    // Fetch user tickets if authenticated
     dispatch(getUserTickets());
-  }, [dispatch]);
+  }, [authUser, dispatch, router]);
 
   const user = useSelector((state: RootState) => state.user);
   const params = useParams();
@@ -32,7 +43,7 @@ const TicketDetails = () => {
       <div
         className="relative bg-white shadow-lg rounded-lg w-full max-w-4xl py-10 px-12"
         style={{
-          backgroundImage: `url('/punjab.png')`, // Adjust the path to your public folder
+          backgroundImage: `url('/punjab.png')`,
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
