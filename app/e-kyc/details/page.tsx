@@ -15,7 +15,6 @@ import {
 	FaRedoAlt,
 } from "react-icons/fa";
 import { getKycDetails, resetKYC } from "@/redux/slices/kycSlice";
-import { format } from "date-fns";
 import { useEffect } from "react";
 import { formatDate } from "@/utils/helpers/formatDate";
 
