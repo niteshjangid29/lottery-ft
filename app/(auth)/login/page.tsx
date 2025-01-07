@@ -62,15 +62,20 @@ function LoginPageContent() {
 				// Handle retailer login
 				dispatch(setProfile(response.data.retailer));
 				setCookie("retailerToken", response.data.token);
-				router.push(
-					`/retailer/dashboard/?retailer_id=${response.data.retailer._id}`
-				);
+				const redirectTo = query.get("redirectTo") || `/retailer/dashboard/?retailer_id=${response.data.retailer._id}`;
+				router.push(redirectTo);
+				// router.push(
+				// 	`/retailer/dashboard/?retailer_id=${response.data.retailer._id}`
+				// );
 				// router.refresh();
 			} else {
 				// Handle user login
 				dispatch(login(response.data.user));
 				setCookie("userToken", response.data.token);
-				router.push(`/?affiliate_id=${affiliate_id}`);
+				const redirectTo = query.get("redirectTo") || `/?affiliate_id=${affiliate_id}`;
+				router.push(redirectTo);
+
+				// router.push(`/?affiliate_id=${affiliate_id}`);
 				// router.refresh();
 			}
 
