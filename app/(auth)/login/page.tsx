@@ -9,6 +9,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import countryCode from "@/utils/data/countryCode.json";
 import { login } from "@/redux/slices/userSlice";
+import { setCookie } from "@/utils/helpers/cookies";
 
 function LoginPageContent() {
 	const [activeTab, setActiveTab] = useState<"user" | "retailer">("user");
@@ -60,7 +61,7 @@ function LoginPageContent() {
 			if (activeTab === "retailer") {
 				// Handle retailer login
 				dispatch(setProfile(response.data.retailer));
-				localStorage.setItem("retailerToken", response.data.token);
+				setCookie("retailerToken", response.data.token);
 				const redirectTo = query.get("redirectTo") || `/retailer/dashboard/?retailer_id=${response.data.retailer._id}`;
 				router.push(redirectTo);
 				// router.push(
@@ -70,7 +71,7 @@ function LoginPageContent() {
 			} else {
 				// Handle user login
 				dispatch(login(response.data.user));
-				localStorage.setItem("userToken", response.data.token);
+				setCookie("userToken", response.data.token);
 				const redirectTo = query.get("redirectTo") || `/?affiliate_id=${affiliate_id}`;
 				router.push(redirectTo);
 

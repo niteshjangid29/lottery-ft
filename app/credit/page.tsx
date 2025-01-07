@@ -82,6 +82,7 @@ const CreditPage = () => {
 				dispatch(getWalletTransactions());
 			});
 		// router.refresh();
+		toast.success("Funds added successfully!");
 		setAmount("");
 		setError("");
 	};

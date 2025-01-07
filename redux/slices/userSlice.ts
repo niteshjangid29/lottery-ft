@@ -1,4 +1,4 @@
-import { getFromLocalStorage } from "@/utils/helpers/getFromLocalStorage";
+import { getCookie, removeCookie, setCookie } from "@/utils/helpers/cookies";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -25,11 +25,11 @@ interface UserState {
 }
 
 const initialState: UserState = {
-	authUser: getFromLocalStorage("userToken") !== null ? true : false,
-	userDetails: JSON.parse(getFromLocalStorage("userDetails") || "null"),
-	userTickets: JSON.parse(getFromLocalStorage("userTickets") || "[]"),
+	authUser: getCookie("userToken") !== null ? true : false,
+	userDetails: JSON.parse(getCookie("userDetails") || "null"),
+	userTickets: JSON.parse(getCookie("userTickets") || "[]"),
 	purchasedTickets: [],
-	cartTickets: JSON.parse(getFromLocalStorage("cartTickets") || "[]"),
+	cartTickets: JSON.parse(getCookie("cartTickets") || "[]"),
 	loading: false,
 };
 
@@ -42,9 +42,7 @@ export const recordTransaction = createAsyncThunk(
 				transaction,
 				{
 					headers: {
-						authorization: `Bearer ${localStorage.getItem(
-							"userToken"
-						)}`,
+						authorization: `Bearer ${getCookie("userToken")}`,
 					},
 				}
 			);
@@ -65,9 +63,7 @@ export const purchaseTicket = createAsyncThunk(
 				{ lottery_id, custom_ticket_numbers: tickets },
 				{
 					headers: {
-						authorization: `Bearer ${localStorage.getItem(
-							"userToken"
-						)}`,
+						authorization: `Bearer ${getCookie("userToken")}`,
 					},
 				}
 			);
@@ -83,13 +79,14 @@ export const getUserTickets = createAsyncThunk(
 	async () => {
 		setLoading(true);
 		try {
+			const auth = `Bearer ${getCookie("userToken")}`;
+			console.log("auth header", auth);
+
 			const response = await axios.get(
 				`${process.env.NEXT_PUBLIC_API_URL}/user/tickets`,
 				{
 					headers: {
-						authorization: `Bearer ${localStorage.getItem(
-							"userToken"
-						)}`,
+						authorization: `Bearer ${getCookie("userToken")}`,
 					},
 				}
 			);
@@ -145,48 +142,39 @@ const userSlice = createSlice({
 		login(state, action: PayloadAction<UserDetails>) {
 			state.authUser = true;
 			state.userDetails = action.payload;
-			localStorage.setItem("userDetails", JSON.stringify(action.payload));
+			setCookie("userDetails", JSON.stringify(action.payload));
 		},
 		logout(state) {
 			state.authUser = false;
 			state.userDetails = null;
-			localStorage.removeItem("userDetails");
-			localStorage.removeItem("userToken");
-			localStorage.removeItem("cartTickets");
-			localStorage.removeItem("retailerProfile");
+			removeCookie("userDetails");
+			removeCookie("userToken");
+			removeCookie("cartTickets");
+			removeCookie("retailerProfile");
 		},
 		updateUser(state, action: PayloadAction<UserDetails>) {
 			if (state.userDetails) {
 				state.userDetails = { ...state.userDetails, ...action.payload };
-				localStorage.setItem(
-					"userDetails",
-					JSON.stringify(state.userDetails)
-				);
+				setCookie("userDetails", JSON.stringify(state.userDetails));
 			}
 		},
 		setCartTickets(state, action: PayloadAction<any[]>) {
 			state.cartTickets = action.payload;
-			localStorage.setItem("cartTickets", JSON.stringify(action.payload));
+			setCookie("cartTickets", JSON.stringify(action.payload));
 		},
 		addToCart(state, action: PayloadAction<any>) {
 			state.cartTickets.push(action.payload);
-			localStorage.setItem(
-				"cartTickets",
-				JSON.stringify(state.cartTickets)
-			);
+			setCookie("cartTickets", JSON.stringify(state.cartTickets));
 		},
 		removeFromCart(state, action: PayloadAction<string>) {
 			state.cartTickets = state.cartTickets.filter(
 				(ticket) => ticket.id !== action.payload
 			);
-			localStorage.setItem(
-				"cartTickets",
-				JSON.stringify(state.cartTickets)
-			);
+			setCookie("cartTickets", JSON.stringify(state.cartTickets));
 		},
 		clearCart(state) {
 			state.cartTickets = [];
-			localStorage.removeItem("cartTickets");
+			removeCookie("cartTickets");
 		},
 		setLoading(state, action: PayloadAction<boolean>) {
 			state.loading = action.payload;

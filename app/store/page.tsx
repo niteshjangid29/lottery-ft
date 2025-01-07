@@ -44,18 +44,11 @@ const StorePageContent: React.FC = () => {
 			return;
 		}
 
-		// Clear existing retailer data when affiliate_id changes
-		// localStorage.removeItem("retailerProfile");
-
 		if (affiliate_id) {
 			dispatch(fetchStoreByUniqueId(affiliate_id))
 				.unwrap()
 				.then((data) => {
 					console.log("Store fetched successfully:", data);
-					// localStorage.setItem(
-					// 	"retailerProfile",
-					// 	JSON.stringify(data)
-					// );
 				})
 				.catch((error) => {
 					console.error("Failed to fetch store:", error);
@@ -74,11 +67,6 @@ const StorePageContent: React.FC = () => {
 					console.error("Failed to fetch retailer:", error);
 				});
 		}
-
-		// return () => {
-		// 	// Cleanup on unmount or affiliate_id change
-		// 	localStorage.removeItem("retailerProfile");
-		// };
 	}, [affiliate_id, retailer_id, router, dispatch, authUser]);
 
 	// Apply retailer's custom styling

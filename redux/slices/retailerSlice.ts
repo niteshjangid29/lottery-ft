@@ -1,6 +1,6 @@
 "use client";
 
-import { getFromLocalStorage } from "@/utils/helpers/getFromLocalStorage";
+import { getCookie, removeCookie, setCookie } from "@/utils/helpers/cookies";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -59,7 +59,7 @@ interface RetailerState {
 }
 
 const initialState: RetailerState = {
-	profile: JSON.parse(getFromLocalStorage("retailerProfile") || "null"),
+	profile: JSON.parse(getCookie("retailerProfile") || "null"),
 	transactionStats: {
 		totalSales: 0,
 		totalCommission: 0,
@@ -84,7 +84,7 @@ const initialState: RetailerState = {
 	commissions: [],
 	sales: [],
 	loading: false,
-	authRetailer: getFromLocalStorage("retailerToken") !== null ? true : false,
+	authRetailer: getCookie("retailerToken") !== null ? true : false,
 };
 
 export const fetchStoreByUniqueId = createAsyncThunk(
@@ -113,9 +113,7 @@ export const fetchRetailerDetails = createAsyncThunk(
 				`${process.env.NEXT_PUBLIC_API_URL}/retailer/details`,
 				{
 					headers: {
-						authorization: `Bearer ${localStorage.getItem(
-							"retailerToken"
-						)}`,
+						authorization: `Bearer ${getCookie("retailerToken")}`,
 					},
 				}
 			);
@@ -136,9 +134,7 @@ export const createAffiliateTransaction = createAsyncThunk(
 				{ retailerId, transactionId, amount },
 				{
 					headers: {
-						authorization: `Bearer ${localStorage.getItem(
-							"userToken"
-						)}`,
+						authorization: `Bearer ${getCookie("userToken")}`,
 					},
 				}
 			);
@@ -167,7 +163,7 @@ export const createAffiliateTransaction = createAsyncThunk(
 // 				`${process.env.NEXT_PUBLIC_API_URL}/affiliate/transactions/${retailerId}/?status=${status}&startDate=${startDate}&endDate=${endDate}&page=${page}&limit=${limit}`,
 // 				{
 // 					headers: {
-// 						authorization: `Bearer ${localStorage.getItem(
+// 						authorization: `Bearer ${getCookie(
 // 							"retailerToken"
 // 						)}`,
 // 					},
@@ -190,9 +186,7 @@ export const processAffiliatePayment = createAsyncThunk(
 				{ transactionIds },
 				{
 					headers: {
-						authorization: `Bearer ${localStorage.getItem(
-							"retailerToken"
-						)}`,
+						authorization: `Bearer ${getCookie("retailerToken")}`,
 					},
 				}
 			);
@@ -212,9 +206,7 @@ export const getTransactionStats = createAsyncThunk(
 				`${process.env.NEXT_PUBLIC_API_URL}/affiliate/stats/${retailerId}`,
 				{
 					headers: {
-						authorization: `Bearer ${localStorage.getItem(
-							"retailerToken"
-						)}`,
+						authorization: `Bearer ${getCookie("retailerToken")}`,
 					},
 				}
 			);
@@ -237,8 +229,8 @@ const retailerSlice = createSlice({
 		logoutRetailer: (state) => {
 			state.profile = null;
 			state.loading = false;
-			localStorage.removeItem("retailerProfile");
-			localStorage.removeItem("retailerToken");
+			removeCookie("retailerProfile");
+			removeCookie("retailerToken");
 			state.authRetailer = false;
 		},
 
@@ -250,10 +242,7 @@ const retailerSlice = createSlice({
 			state.profile = action.payload;
 			state.authRetailer = true;
 			state.loading = false;
-			localStorage.setItem(
-				"retailerProfile",
-				JSON.stringify(action.payload)
-			);
+			setCookie("retailerProfile", JSON.stringify(action.payload));
 			console.log("profile set to local storage");
 		},
 
@@ -261,7 +250,7 @@ const retailerSlice = createSlice({
 			state.profile = null;
 			state.loading = false;
 			state.authRetailer = false;
-			localStorage.removeItem("retailerProfile");
+			removeCookie("retailerProfile");
 		},
 
 		updateProfile: (
@@ -270,10 +259,7 @@ const retailerSlice = createSlice({
 		) => {
 			if (state.profile) {
 				state.profile = { ...state.profile, ...action.payload };
-				localStorage.setItem(
-					"retailerProfile",
-					JSON.stringify(state.profile)
-				);
+				setCookie("retailerProfile", JSON.stringify(state.profile));
 			}
 			state.loading = false;
 		},
@@ -347,10 +333,7 @@ const retailerSlice = createSlice({
 			.addCase(fetchStoreByUniqueId.fulfilled, (state, action) => {
 				state.loading = false;
 				state.profile = action.payload;
-				localStorage.setItem(
-					"retailerProfile",
-					JSON.stringify(action.payload)
-				);
+				setCookie("retailerProfile", JSON.stringify(action.payload));
 			})
 			.addCase(fetchStoreByUniqueId.rejected, (state) => {
 				state.loading = false;

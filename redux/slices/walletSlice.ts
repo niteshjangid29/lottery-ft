@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getFromLocalStorage } from "@/utils/helpers/getFromLocalStorage";
 import axios from "axios";
+import { getCookie } from "@/utils/helpers/cookies";
 
 interface WalletState {
 	balance: number;
@@ -28,9 +28,7 @@ export const getWalletBalance = createAsyncThunk(
 				`${process.env.NEXT_PUBLIC_API_URL}/user/wallet`,
 				{
 					headers: {
-						authorization: `Bearer ${localStorage.getItem(
-							"userToken"
-						)}`,
+						authorization: `Bearer ${getCookie("userToken")}`,
 					},
 				}
 			);
@@ -50,9 +48,7 @@ export const getWalletTransactions = createAsyncThunk(
 				`${process.env.NEXT_PUBLIC_API_URL}/user/wallet/transactions`,
 				{
 					headers: {
-						authorization: `Bearer ${localStorage.getItem(
-							"userToken"
-						)}`,
+						authorization: `Bearer ${getCookie("userToken")}`,
 					},
 				}
 			);
