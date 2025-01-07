@@ -1,3 +1,4 @@
+import { getCookie } from "@/utils/helpers/cookies";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -53,9 +54,7 @@ export const updateKYC = createAsyncThunk(
 				{ kycType, idNumber, otp },
 				{
 					headers: {
-						authorization: `Bearer ${localStorage.getItem(
-							"userToken"
-						)}`,
+						authorization: `Bearer ${getCookie("userToken")}`,
 					},
 				}
 			);
@@ -78,9 +77,7 @@ export const getKycDetails = createAsyncThunk("kyc/getKycDetails", async () => {
 			`${process.env.NEXT_PUBLIC_API_URL}/user/kyc/details`,
 			{
 				headers: {
-					authorization: `Bearer ${localStorage.getItem(
-						"userToken"
-					)}`,
+					authorization: `Bearer ${getCookie("userToken")}`,
 				},
 			}
 		);
@@ -123,8 +120,7 @@ const kycSlice = createSlice({
 				state.kycDetails = null;
 			})
 			.addCase(getKycDetails.fulfilled, (state, action) => {
-				state.isVerified =
-					action.payload.kyc.status === "approved";
+				state.isVerified = action.payload.kyc.status === "approved";
 				state.kycDetails = action.payload;
 			})
 			.addCase(getKycDetails.rejected, (state) => {
