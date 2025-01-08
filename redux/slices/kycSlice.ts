@@ -93,6 +93,29 @@ export const getKycDetails = createAsyncThunk("kyc/getKycDetails", async () => {
 	}
 });
 
+export const resetKyc = createAsyncThunk("kyc/resetKYC", async () => {
+	try {
+		const response = await axios.put(
+			`${process.env.NEXT_PUBLIC_API_URL}/user/kyc/reset`,
+			{},
+			{
+				headers: {
+					authorization: `Bearer ${getCookie("userToken")}`,
+				},
+			}
+		);
+
+		// console.log("KYC reset response:", response.data);
+
+		return response.data;
+	} catch (error) {
+		if (axios.isAxiosError(error) && error.response) {
+			return error.response.data;
+		}
+		return "Failed to reset KYC";
+	}
+});
+
 const kycSlice = createSlice({
 	name: "kyc",
 	initialState,
@@ -124,6 +147,10 @@ const kycSlice = createSlice({
 				state.kycDetails = action.payload;
 			})
 			.addCase(getKycDetails.rejected, (state) => {
+				state.isVerified = false;
+				state.kycDetails = null;
+			})
+			.addCase(resetKyc.fulfilled, (state, action) => {
 				state.isVerified = false;
 				state.kycDetails = null;
 			});

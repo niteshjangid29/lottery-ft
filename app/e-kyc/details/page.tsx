@@ -14,7 +14,7 @@ import {
 	FaUniversity,
 	FaRedoAlt,
 } from "react-icons/fa";
-import { getKycDetails, resetKYC } from "@/redux/slices/kycSlice";
+import { getKycDetails, resetKyc } from "@/redux/slices/kycSlice";
 import { useEffect } from "react";
 import { formatDate } from "@/utils/helpers/formatDate";
 
@@ -30,7 +30,7 @@ const KYCDetailsPage = () => {
 	}, [dispatch, kycDetails]);
 
 	const handleResetKYC = () => {
-		dispatch(resetKYC());
+		dispatch(resetKyc());
 		router.push("/e-kyc");
 	};
 
