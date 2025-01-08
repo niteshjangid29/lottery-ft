@@ -122,16 +122,19 @@ function PurchaseTicketsContent() {
 		setQuantity((prev) => (increment ? prev + 1 : Math.max(1, prev - 1)));
 	};
 
+	// const soldTicketsNumbers = soldTickets.map(
+	// 	(ticket) => ticket.ticket_number
+	// );
+	// console.log({ soldTicketsNumbers });
+
 	const getSuggestedTickets = (requestedNumber: string): string[] => {
 		// Get all unavailable numbers
 		const unavailableNumbers = [
 			...selectedTickets.map((ticket) => ticket.number),
-			...soldTickets
-				.filter((data: any) => data.lotteryName === lotteryDetails.name)
-				.flatMap((data: any) =>
-					data.purchasedTickets.map((num: any) => num.toString())
-				),
+			...soldTickets.map((data: any) => data.ticket_number.toString()),
 		];
+
+		console.log({ unavailableNumbers });
 
 		const suggestions: string[] = [];
 		const requestedNum = parseInt(requestedNumber);
@@ -226,7 +229,7 @@ function PurchaseTicketsContent() {
 			if (
 				soldTickets.some(
 					(data: any) =>
-						data.lotteryName === lotteryDetails.name &&
+						data.lottery_id.name === lotteryDetails.name &&
 						data.ticket_number === parseInt(customNumber)
 				)
 			) {

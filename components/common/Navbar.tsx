@@ -123,7 +123,7 @@ function NavbarContent() {
 									height={10}
 								/>
 								<span className="ml-2 text-white text-2xl font-semibold">
-									PB Lottery
+									MH Lottery
 								</span>
 							</Link>
 							<div className="hidden sm:block sm:ml-6">

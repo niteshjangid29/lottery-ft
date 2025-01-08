@@ -503,7 +503,7 @@ export default function ResultsPage() {
 									<option value="all">All Lotteries</option>
 									<option value="dear 100">Dear 100</option>
 									<option value="pb lottery">
-										PB Lottery
+										MH Lottery
 									</option>
 									<option value="rakhi special">
 										Rakhi Special

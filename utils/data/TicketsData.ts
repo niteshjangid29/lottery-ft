@@ -47,7 +47,7 @@ export const TICKETS_DATA: Ticket[] = [
 	},
 	{
 		id: "2",
-		lotteryName: "PB Lottery",
+		lotteryName: "MH Lottery",
 		number: "7673",
 		drawDate: "20-12-2024",
 		resultStatus: "won",
@@ -56,7 +56,7 @@ export const TICKETS_DATA: Ticket[] = [
 	},
 	{
 		id: "8",
-		lotteryName: "PB Lottery",
+		lotteryName: "MH Lottery",
 		number: "8372",
 		drawDate: "20-12-2024",
 		resultStatus: "won",
@@ -65,7 +65,7 @@ export const TICKETS_DATA: Ticket[] = [
 	},
 	{
 		id: "9",
-		lotteryName: "PB Lottery",
+		lotteryName: "MH Lottery",
 		number: "7542",
 		drawDate: "20-12-2024",
 		resultStatus: "won",
@@ -74,7 +74,7 @@ export const TICKETS_DATA: Ticket[] = [
 	},
 	{
 		id: "10",
-		lotteryName: "PB Lottery",
+		lotteryName: "MH Lottery",
 		number: "4322",
 		drawDate: "20-12-2024",
 		resultStatus: "won",
@@ -83,7 +83,7 @@ export const TICKETS_DATA: Ticket[] = [
 	},
 	{
 		id: "11",
-		lotteryName: "PB Lottery",
+		lotteryName: "MH Lottery",
 		number: "9809",
 		drawDate: "20-12-2024",
 		resultStatus: "won",

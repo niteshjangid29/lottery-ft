@@ -51,7 +51,7 @@ export const DRAW_RESULTS_DATA: DrawResult[] = [
 	},
 	{
 		id: "6770a02924dd8dc25456263d",
-		lotteryName: "PB Lottery",
+		lotteryName: "MH Lottery",
 		drawDate: "20-12-2024",
 		winningNumbers: [7673, 8372, 7542, 4322, 9809],
 		prizeTiers: [
